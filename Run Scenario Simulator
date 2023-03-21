@@ -1,2 +1,2 @@
 cd /Users/tjark/Documents/Python/interface.nosync/
-streamlit run Scenario\ Simulator.py
+streamlit run app.py
