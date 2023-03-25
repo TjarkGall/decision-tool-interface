@@ -1,60 +1,173 @@
 import streamlit as st
+import pandas as pd
+from PIL import Image
 
-# Set the page config
-st.set_page_config(
-    page_title="Scenario-based policy and intervention evaluation tool",
-    page_icon=None,
-    layout="centered",
-    initial_sidebar_state="auto",
-)
 
-# Define the main function
-def main():
-    st.title('Scenario-based policy and intervention evaluation tool')
+# Introduction
+st.title('Urban Mobility Impact Assessment and Comparison Tool')
+st.write('This is a prototype of a tool to help comparing potential impacts of policies on a local urban mobility scenario. It aims to provide a quick interface to compare impacts across user groups (personas) and across future scenarios. The standard values have been defined as reference values by the research team. The exemplary application aims to compare the impact of eight policies for different persona groups and across 2030 scenarios, measured by CO2 equivalent (CO2e) emissions, energy demand in megajoule (MJ), and calories burned.')
 
-    st.write("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.")
+# Information
+st.subheader('Information')
+st.write('You can reset the form by refreshing the website. No values or uploaded images are stored. The code is available on Github: https://github.com/TjarkGall/decision-tool-interface')
+st.write('The concept was developed as part of the Institut Pascal research programme 2022 and has been continued as part of the work of the <a href="http://www.chaire-anthropolis.fr/">Anthropolis Chair.</a>', unsafe_allow_html=True)
+st.subheader('Question?')
+st.write('Contact Tjark Gall | tjark.gall@irt-systemx.fr')
 
-    num_scenarios = st.slider("Choose the number of scenarios", 2, 8, 4)
+# Anthropolis logo
+image = Image.open('data/images/Anthropolis_logo_colour.png')
+st.image(image, use_column_width=True)
 
-    scenario_names = []
-    for i in range(num_scenarios):
-        scenario_name = st.text_input(f"Scenario {i + 1} name", f"Scenario {i + 1}")
-        scenario_names.append(scenario_name)
+import streamlit as st
+import pandas as pd
+from PIL import Image
 
-    probabilities = []
-    for i, name in enumerate(scenario_names):
-        probability = st.slider(f"Probability of {name}", 0.0, 1.0, 0.25)
-        probabilities.append(probability)
+# Step 2: Defining Future Scenarios
+st.header('Defining Future Scenarios')
 
-    st.header("Personas")
+# Number of scenarios
+st.subheader('Number of scenarios')
+no_scen = st.slider('With how many scenarios do you want to work?', min_value=2, max_value=8, value=4)
 
-    st.write("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.")
+# Scenario names and descriptions
+st.subheader('Scenario names and descriptions')
+scen_name = []
+scen_desc = []
+for i in range(no_scen):
+    default_name = f'S{i+1}: '
+    if i == 0:
+        default_name += 'Saclay 2.0'
+        default_desc = 'Continuation of today’s development. The Saclay Plateau today is dominated by universities and technology-related institutions. Some residential buildings and other functions exist and are growing. Nevertheless, on weekend or holiday periods, the plateau remains mostly empty. Saclay 2.0 would be the continuation of the current growth. More university and technology functions would grow, complemented by more residential buildings. Nevertheless, by 2030, the character of the plateau remains to be largely linked to university’s seasonality and depending on the incoming commuters, primarily between Tuesday and Thursday and barely staying or utilising other functions on the plateau.'
+    elif i == 1:
+        default_name += 'Paris 2.0'
+        default_desc = 'High-density, mixed-use neighbourhood. The second scenario is more optimistic on the integrated development of the plateau. It assumes that a large number of residential developments, going further than only student and international researcher housing, adds a critical mass of population density to allow for a variety of other functions to arise and remain active even in holiday seasons or weekends.'
+    elif i == 2:
+        default_name += 'Rural Campus'
+        default_desc = 'Low-density, low diversity rural district. This scenario describes mostly the plateau as it has been since the 1970s. While more offices and universities are added, its functions and character remains primarily rural. Residential functions, as well as the accompanying other functions, remain limited and their growth stagnates, maintaining primarily the status quo of activity and functional mix.'
+    elif i == 3:
+        default_name += 'Village Campus'
+        default_desc = 'High-density active core, surrounded by low-density. As a mix between the scenario ‘Paris 2.0’ and ‘Rural Campus’, this scenario is defined by overall low density and restricted developments. However, it has modern yet traditional French village cores with high level of mixed-use, walkability, and a range of bars and restaurants for students and other inhabitants of the plateau.'
+    else:
+        default_name += f'Scenario {i+1}'
+        default_desc = ''
+    scen_name.append(st.text_input(f'Scenario {i+1} name:', value=default_name))
+    scen_desc.append(st.text_area(f'Scenario {i+1} description (max. 750 characters):', value=default_desc, max_chars=750))
 
-    persona_weights = []
-    for i in range(4):
-        weight = st.slider(f"Weight of Persona {i + 1}", 0.0, 1.0)
-        persona_weights.append(weight)
 
-    st.header("CO2e per mode")
+# Scenario characteristics
+st.subheader('Scenario characteristics')
+st.write('Define the level of Intermodality (IM), Mixed Use (MU), Density (DE), and Public Transport (PT) for each of the scenarios from low to very high. These numbers are not taken into consideration in the calculation but shall help to distinguish the scenarios during the following steps.')
 
-    modes = ["Car", "Public transport", "E-bike/Scooter", "Biking/walking"]
-    co2e_per_mode = {}
 
-    for mode in modes:
-        co2e = st.number_input(f"{mode} CO2e (kg)", min_value=0.0)
-        co2e_per_mode[mode] = co2e
+scen_chars_prep = [    {        "IM": "3: high",        "MU": "1: low",        "DE": "4: very high",        "PT": "3: high",    },    {        "IM": "4: very high",        "MU": "4: very high",        "DE": "4: very high",        "PT": "4: very high",    },    {        "IM": "2: medium",        "MU": "1: low",        "DE": "1: low",        "PT": "2: medium",    },    {        "IM": "2: medium",        "MU": "4: very high",        "DE": "2: medium",        "PT": "3: high"    },]
 
-    st.header("Likelihood of each mode per scenario and persona")
+if no_scen != len(scen_chars_prep):
+    scen_chars_prep = [dict.fromkeys(scen_chars_prep[0]) for _ in range(no_scen)]
 
-    likelihoods = []
-    for i, name in enumerate(scenario_names):
-        st.subheader(name)
-        for j in range(4):
-            mode_likelihoods = {}
-            for mode in modes:
-                likelihood = st.slider(f"Persona {j + 1} {mode} likelihood in {name}", 0.0, 1.0)
-                mode_likelihoods[mode] = likelihood
-            likelihoods.append(mode_likelihoods)
+scen_chars = pd.DataFrame(scen_chars_prep, index=scen_name)
+scen_chars.IM = scen_chars.IM.astype("category")
+scen_chars.MU = scen_chars.MU.astype("category")
+scen_chars.DE = scen_chars.DE.astype("category")
+scen_chars.PT = scen_chars.PT.astype("category")
 
-if __name__ == "__main__":
-    main()
+
+cols = ["IM", "MU", "DE", "PT"]
+
+for col in cols:
+    categories = list(scen_chars[col].cat.categories)
+    for cat in ["1: low", "2: medium", "3: high", "4: very high"]:
+        if cat not in categories:
+            scen_chars[col] = scen_chars[col].cat.add_categories(cat)
+            
+scen_chars.IM = scen_chars.IM.cat.set_categories(["1: low", "2: medium", "3: high", "4: very high"])
+scen_chars.MU = scen_chars.MU.cat.set_categories(["1: low", "2: medium", "3: high", "4: very high"])
+scen_chars.DE = scen_chars.DE.cat.set_categories(["1: low", "2: medium", "3: high", "4: very high"])
+scen_chars.PT = scen_chars.PT.cat.set_categories(["1: low", "2: medium", "3: high", "4: very high"])
+
+scen_chars = st.experimental_data_editor(scen_chars)
+
+
+#Scenario images
+st.subheader('Scenario images')
+scen_images = []
+for i in range(no_scen):
+    default_image_path = f'data/images/scenario_0{i+1}.png'
+    uploaded_files = st.file_uploader(f'Upload image(s) for {scen_name[i]}:', type=['jpg', 'jpeg', 'png'], key=f'scenario{i+1}', accept_multiple_files=True)
+    if uploaded_files:
+        scen_images.append(uploaded_files[0])
+    else:
+        scen_images.append(default_image_path)
+
+# Show scenario info
+st.subheader('Scenario information')
+for i in range(no_scen):
+    st.write(f'### {scen_name[i]}')
+    if scen_images[i] is not None:
+    	st.image(scen_images[i], width=300)
+    st.write(scen_desc[i])
+    st.write(scen_chars.loc[scen_name[i]])
+
+
+
+# Step 3: Defining Future Personas
+st.header('Defining Future Personas')
+
+# Number of personas
+st.subheader('Number of personas')
+no_pers = st.slider('With how many personas do you want to work?', min_value=2, max_value=8, value=4)
+
+# Persona names and descriptions
+st.subheader('Persona names and descriptions')
+pers_name = []
+pers_desc = []
+for i in range(no_pers):
+    default_name = f''
+    if i == 0:
+        default_name += 'Jacqueline'
+        default_desc = 'Jacqueline is a French woman aged 40 who works full-time at a technology company as a manager, exercises daily and stays healthy. She appreciates her privacy and has flexible work schedules. She doesn’t want to walk too much because she carries lots of bags around, she prefers to cycle. She has no children and no partner and can be described as a workaholic. She is a bit concerned with sustainability issues.'
+    elif i == 1:
+        default_name += 'Thierry'
+        default_desc = 'Thierry is a 67-year-old man who visits the campus during the day to work. He is a professor and will soon be retired. He comes to the plateau from time to time to give guest lectures and lives inside Paris. He is not in charge of children. He usually uses public transport but lately is struggling due to a leg injury. He is very concerned by sustainability.'
+    elif i == 2:
+        default_name += 'Adrian'
+        default_desc = 'Adrian is a 35-year-old French man working part-time at a local supermarket in an administrative function. He is in charge of two kindergarten and one primary school child. He has a medium income. He has many time constraints and lots of activities and scheduled meetings. He uses his car due to his complex daily movements and no possibility to deal with delays. Sustainability is not the priority in his choices due to several constraints.'
+    elif i == 3:
+        default_name += 'Rui'
+        default_desc = 'Rui is a 21-year-old female. She is an international undergrad exchange student from China, studying at CentraleSupélec. She lives on the campus in one of the student residencies. She mainly moves between her daily activities by walking and cycling because she cares about sustainability and has not many alternatives. It is also cheaper.'
+    else:
+        default_name += f'Persona {i+1}'
+        default_desc = ''
+    pers_name.append(st.text_input(f'Name of persona {i+1}:', value=default_name))
+    pers_desc.append(st.text_area(f'Description of persona {i+1} (max. 250 char.):', value=default_desc, max_chars=250))
+
+# Persona characteristics
+st.subheader('Persona characteristics')
+st.write('Set the number of home-work-home kilometres for a normal day for each persona and their weight in kilograms (for calorie calculations)')
+
+# Define default values for all personas
+default_values = {'Jacqueline': [60, 57], 'Thierry': [40, 84], 'Adrian': [10, 72], 'Rui': [4, 53]}
+for i in range(4, no_pers):
+    default_values[f'Persona {i+1}'] = [0, 0]
+
+# Create the DataFrame with the default values
+pers_chars = pd.DataFrame.from_dict(default_values, orient='index', columns=['Distance (km)', 'Weight (kg)']).fillna(0)
+
+#Persona images
+st.subheader('Persona images')
+pers_images = []
+for i in range(no_pers):
+    default_image_path = f'data/images/persona_0{i+1}.png'
+    uploaded_files = st.file_uploader(f'Upload image(s) for {pers_name[i]}:', type=['jpg', 'jpeg', 'png'], key=f'persona{i+1}', accept_multiple_files=True)
+    if uploaded_files:
+        pers_images.append(uploaded_files[0])
+    else:
+        pers_images.append(default_image_path)
+
+# Show persona info
+st.subheader('Persona information')
+for i in range(no_pers):
+    st.write(f'### {pers_name[i]}')
+    if pers_images[i] is not None:
+    	st.image(pers_images[i], width=300)
+    st.write(pers_desc[i])
+    st.write(pers_chars.loc[pers_name[i]])
