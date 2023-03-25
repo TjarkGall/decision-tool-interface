@@ -31,7 +31,7 @@ no_scen = st.slider('With how many scenarios do you want to work?', min_value=2,
 
 # Scenario names and descriptions
 st.subheader('Scenario names and descriptions')
-scen_name = []
+scen_names = []
 scen_desc = []
 for i in range(no_scen):
     default_name = f'S{i+1}: '
@@ -50,7 +50,7 @@ for i in range(no_scen):
     else:
         default_name += f'Scenario {i+1}'
         default_desc = ''
-    scen_name.append(st.text_input(f'Scenario {i+1} name:', value=default_name))
+    scen_names.append(st.text_input(f'Scenario {i+1} name:', value=default_name))
     scen_desc.append(st.text_area(f'Scenario {i+1} description (max. 750 characters):', value=default_desc, max_chars=750))
 
 
@@ -64,7 +64,7 @@ scen_chars_prep = [    {        "IM": "3: high",        "MU": "1: low",        "
 if no_scen != len(scen_chars_prep):
     scen_chars_prep = [dict.fromkeys(scen_chars_prep[0]) for _ in range(no_scen)]
 
-scen_chars = pd.DataFrame(scen_chars_prep, index=scen_name)
+scen_chars = pd.DataFrame(scen_chars_prep, index=scen_names)
 scen_chars.IM = scen_chars.IM.astype("category")
 scen_chars.MU = scen_chars.MU.astype("category")
 scen_chars.DE = scen_chars.DE.astype("category")
@@ -92,7 +92,7 @@ st.subheader('Scenario images')
 scen_images = []
 for i in range(no_scen):
     default_image_path = f'data/images/scenario_0{i+1}.png'
-    uploaded_files = st.file_uploader(f'Upload image(s) for {scen_name[i]}:', type=['jpg', 'jpeg', 'png'], key=f'scenario{i+1}', accept_multiple_files=True)
+    uploaded_files = st.file_uploader(f'Upload image(s) for {scen_names[i]}:', type=['jpg', 'jpeg', 'png'], key=f'scenario{i+1}', accept_multiple_files=True)
     if uploaded_files:
         scen_images.append(uploaded_files[0])
     else:
@@ -101,11 +101,11 @@ for i in range(no_scen):
 # Show scenario info
 st.subheader('Scenario information')
 for i in range(no_scen):
-    st.write(f'### {scen_name[i]}')
+    st.write(f'### {scen_names[i]}')
     if scen_images[i] is not None:
     	st.image(scen_images[i], width=300)
     st.write(scen_desc[i])
-    st.write(scen_chars.loc[scen_name[i]])
+    st.write(scen_chars.loc[scen_names[i]])
 
 
 
@@ -171,3 +171,259 @@ for i in range(no_pers):
     	st.image(pers_images[i], width=300)
     st.write(pers_desc[i])
     st.write(pers_chars.loc[pers_name[i]])
+
+
+
+# Step 4: Likelihood of scenarios
+st.header('Likelihood of scenarios')
+
+# Scenario description
+st.write('Define for each of the scenarios the probability in % between 0 and 100. The sum must add up to 100.')
+
+# Default values
+default_values = [40, 15, 25, 20]
+for i in range(no_scen - 4):
+    default_values.append(0)
+
+# Scenario likelihood sliders
+total_likelihood = 0
+for i in range(no_scen):
+    scen_likelihood = st.slider(f'Likelihood of scenario {scen_names[i]} in percent:', min_value=0, max_value=100, value=default_values[i], step=5)
+    total_likelihood += scen_likelihood
+
+# Calculate total likelihood
+if total_likelihood != 100:
+    st.error("Error: The sum of likelihoods must be equal to 100.")
+
+# Display total likelihood
+st.write(f'Total likelihood: {total_likelihood}%')
+if total_likelihood != 100:
+    st.write('Please adjust the likelihoods so that the sum is 100%.', unsafe_allow_html=True)
+    st.markdown('<style>div.stError > p:first-child {color: red; font-weight: bold;}</style>', unsafe_allow_html=True)
+
+
+
+
+# Number of people moving to/on the plateau per day
+st.subheader('Number of people moving to/on the plateau per day')
+no_people = st.number_input('How many people move to/on the plateau per day?', value=50000)
+
+
+# Persona characteristics likelihood sliders
+st.subheader('Persona characteristics')
+st.write('Define for each of the personas the weight in percent between 0 and 100. 10 means that 10% of the overall population defined above are similar to the defined persona. The weights must add up to 100.')
+pers_weights = []
+for i in range(no_pers):
+    default_weights = [10, 60, 20, 10] + [0] * (no_scen - 4)
+    pers_weights.append(st.slider(f'Weight in percent of {pers_name[i]} in overall population:',
+                                   min_value=0, max_value=100, step=5, value=default_weights[i],
+                                   key=f"pers_weight_{i}"))
+total_weights = sum(pers_weights)
+st.write(f'Total weight: {total_weights}%')
+if total_weights != 100:
+    st.error('Total weight must be 100%')
+
+
+
+# Step 5: Mode likelihoods
+st.header('Likelihood to use mode per scenario and persona')
+
+# Text description
+st.write('In this section, we define for each of the scenarios the likelihood for each persona to use a certain mode. The range of likelihood to take a mode is 0 = unlikely, 1 = rather unlikely, 2 = rather likely, 3 = likely, and 4 = very likely. The modes are Mobility on Demand (MoD), Car, Bike, Walk, Micromobility (MM), Public Transport and MoD (PT-MoD), Public Transport and Bike (PT-Bike), Public Transport and Walk (PT-Walk), Public Transport and Micromobility (PT-MM), Car-Walk and Micromobility and Walk (MM-Walk). For multimodal trips, we assume 80% to be done with the first-mentioned mode and 20% by the second.')
+
+mode_prep_s1 = [
+# Jacqueline
+    {'MoD':"2",'Car':"3",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"3",'PT-Bike':"1",'PT-Walk':"3",
+     'PT-MM':"1",'MoD-Walk':"1",'MoD-MM':"0",'Car-Walk':"3",'MM-Walk':"0"},
+# Thierry
+    {'MoD':"3",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"3",'PT-Bike':"0",'PT-Walk':"2",
+     'PT-MM':"0",'MoD-Walk':"3",'MoD-MM':"0",'Car-Walk':"1",'MM-Walk':"0"},
+# Adrian
+    {'MoD':"3",'Car':"3",'Bike':"1",'Walk':"1",
+     'MM':"2",'PT-MoD':"2",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"1",'MoD-Walk':"3",'MoD-MM':"3",'Car-Walk':"4",'MM-Walk':"0"},
+# Rui
+    {'MoD':"3",'Car':"0",'Bike':"4",'Walk':"4",
+     'MM':"3",'PT-MoD':"1",'PT-Bike':"4",'PT-Walk':"4",
+     'PT-MM':"4",'MoD-Walk':"1",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"4"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"}
+]
+mode_prep_s2 = [
+# Jacqueline
+    {'MoD':"0",'Car':"2",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"4",'PT-Bike':"2",'PT-Walk':"4",
+     'PT-MM':"2",'MoD-Walk':"1",'MoD-MM':"0",'Car-Walk':"1",'MM-Walk':"0"},
+# Thierry
+    {'MoD':"2",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"4",'PT-Bike':"0",'PT-Walk':"3",
+     'PT-MM':"1",'MoD-Walk':"3",'MoD-MM':"1",'Car-Walk':"1",'MM-Walk':"0"},
+# Adrian
+    {'MoD':"4",'Car':"3",'Bike':"1",'Walk':"1",
+     'MM':"2",'PT-MoD':"2",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"1",'MoD-Walk':"3",'MoD-MM':"4",'Car-Walk':"4",'MM-Walk':"0"},
+# Rui
+    {'MoD':"3",'Car':"0",'Bike':"4",'Walk':"4",
+     'MM':"3",'PT-MoD':"1",'PT-Bike':"4",'PT-Walk':"4",
+     'PT-MM':"4",'MoD-Walk':"1",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"4"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"}
+]
+mode_prep_s3 = [
+# Jacqueline
+    {'MoD':"3",'Car':"4",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"1",
+     'PT-MM':"0",'MoD-Walk':"2",'MoD-MM':"0",'Car-Walk':"4",'MM-Walk':"0"},
+# Thierry
+    {'MoD':"1",'Car':"1",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"2",'PT-Bike':"0",'PT-Walk':"1",
+     'PT-MM':"0",'MoD-Walk':"2",'MoD-MM':"0",'Car-Walk':"2",'MM-Walk':"0"},
+# Adrian
+    {'MoD':"3",'Car':"4",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"1",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"2",'MoD-MM':"2",'Car-Walk':"4",'MM-Walk':"0"},
+# Rui
+    {'MoD':"0",'Car':"0",'Bike':"4",'Walk':"3",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"2",'PT-Walk':"3",
+     'PT-MM':"1",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"1"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"}
+]
+mode_prep_s4 = [
+# Jacqueline
+    {'MoD':"1",'Car':"3",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"3",'PT-Bike':"1",'PT-Walk':"3",
+     'PT-MM':"3",'MoD-Walk':"1",'MoD-MM':"0",'Car-Walk':"4",'MM-Walk':"0"},
+# Thierry
+    {'MoD':"1",'Car':"1",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"2",'PT-Bike':"0",'PT-Walk':"2",
+     'PT-MM':"1",'MoD-Walk':"3",'MoD-MM':"1",'Car-Walk':"2",'MM-Walk':"0"},
+# Adrian
+    {'MoD':"4",'Car':"4",'Bike':"0",'Walk':"0",
+     'MM':"1",'PT-MoD':"1",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"3",'MoD-MM':"2",'Car-Walk':"4",'MM-Walk':"0"},
+# Rui
+    {'MoD':"3",'Car':"2",'Bike':"4",'Walk':"3",
+     'MM':"2",'PT-MoD':"2",'PT-Bike':"3",'PT-Walk':"3",
+     'PT-MM':"2",'MoD-Walk':"2",'MoD-MM':"1",'Car-Walk':"1",'MM-Walk':"3"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"}
+]
+mode_prep_s5 = [
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"},
+# Persona n
+    {'MoD':"0",'Car':"0",'Bike':"0",'Walk':"0",
+     'MM':"0",'PT-MoD':"0",'PT-Bike':"0",'PT-Walk':"0",
+     'PT-MM':"0",'MoD-Walk':"0",'MoD-MM':"0",'Car-Walk':"0",'MM-Walk':"0"}
+]
+mode_prep_s6 = mode_prep_s5
+mode_prep_s7 = mode_prep_s5
+mode_prep_s8 = mode_prep_s5
+
+mode_prep = {0:mode_prep_s1,1:mode_prep_s2,2:mode_prep_s3,3:mode_prep_s4,
+             4:mode_prep_s5,5:mode_prep_s6,6:mode_prep_s7,7:mode_prep_s8} 
+
+cols = ["MoD", "Car", "Bike", "Walk", "MM", "PT-MoD", "PT-Bike", "PT-Walk", "PT-MM", "MoD-Walk", "MoD-MM", "Car-Walk", "MM-Walk"]
+
+mode_pref_list = []
+
+for i in range(no_scen):
+    mode_pref = pd.DataFrame(mode_prep[i][0:no_pers], index=(pers_name[:no_pers]))
+    for col in cols:
+        mode_pref[col] = mode_pref[col].astype("category")
+        categories = list(mode_pref[col].cat.categories)
+        missing_categories = [cat for cat in ["0", "1", "2", "3", "4"] if cat not in categories]
+        mode_pref[col] = mode_pref[col].cat.add_categories(missing_categories)
+        mode_pref[col] = mode_pref[col].cat.set_categories(["0","1","2","3","4"])
+        mode_pref[col] = mode_pref[col].cat.reorder_categories(sorted(mode_pref[col].cat.categories))
+    st.write(f'### {scen_names[i]}')
+    if scen_images[i] is not None:
+        st.image(scen_images[i], width=300)
+    mpde_pref = st.experimental_data_editor(mode_pref)
+    mode_pref_list.append(mode_pref)
+
