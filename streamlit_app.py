@@ -1,8 +1,8 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
 import altair as alt
+import numpy as np
+import pandas as pd
 from PIL import Image
+import streamlit as st
 
 # Introduction
 st.title('Urban Mobility Impact Assessment and Comparison Tool')
