@@ -256,7 +256,7 @@ st.write('Define for each of the personas the weight in percent between 0 and 10
          'population defined above are similar to the defined persona. The weights must add up to 100.')
 pers_weights = []
 for i in range(no_pers):
-    default_weights = [10, 60, 20, 10] + [0] * (no_scen - 4)
+    default_weights = [20, 20, 15, 45] + [0] * (no_scen - 4)
     pers_weights.append(st.slider(f'Weight in percent of {pers_name[i]} in overall population:', min_value=0,
                                   max_value=100, step=5, value=default_weights[i], key=f"pers_weight_{i}"))
 total_weights = sum(pers_weights)
@@ -538,20 +538,20 @@ for i in range(no_scen):
 st.header('Underlying values for impact assessment')
 
 # Create the input fields for individual values
-walk_calories_input = st.number_input('Calories burned per kg per km while walking:', value=1)
-bike_calories_input = st.number_input('Calories burned per kg per km while cycling:', value=0.4)
+walk_calories_input = st.number_input('Adapt the value for calories burned per kg per km while walking:', value=1)
+bike_calories_input = st.number_input('Adapt the value for calories burned per kg per km while cycling:', value=0.4)
 
 # Create editabe dataframe for inputs on emissions and energy demand per passenger kilometer
 emissions_energy = {
-    'CO2e': [15, 50, 150, 0, 0, 10],
-    'MJ': [0.2, 0.8, 1.8, 0, 0, 0.5]
+    'CO2e': [15, 50, 150, 10, 0, 0],
+    'MJ': [0.2, 0.8, 1.8, 0.5, 0, 0]
 }
 
 # Create the dataframe
 emissions_energy = pd.DataFrame(emissions_energy, index=['PT', 'Car', 'MoD', 'MM', 'Bike', 'Walk']).T
 
 # Add a title above the dataframe
-st.write('Average CO2 equivalent emissions in g/passenger km and energy demand in MJ/passenger km')
+st.write('Adapt the CO2 equivalent emissions in g/passenger km and energy demand in MJ/passenger km')
 emissions_energy = st.experimental_data_editor(emissions_energy)
 
 # Step 8
@@ -845,15 +845,72 @@ st.write('Set the impact you assume you intervention to have across scenario and
          ' -2 means that after the intervention, a certain mode is much less likely. 0 means nothing changes. +2'
          ' means that the likelihood to use a certain mode increases strongly.')
 
-interv_impact_list = []
-
-for i in range(no_scen):
-    # Create editabe dataframe for inputs on emissions and energy demand per passenger kilometer
-    interv_impact = {
-        'MoD': ['-2','+2','+1','0','0','0','0','0'],
-        'Car': ['-2','+2','+1','0','0','0','0','0'],
-        'Bike': ['-2','+2','+1','0','0','0','0','0'],
-        'Walk': ['-2','+2','+1','0','0','0','0','0'],
+interv_impact = {
+        0:{
+        'MoD': ['+1','+2','+1','0','0','0','0','0'],
+        'Car': ['0','0','-1','0','0','0','0','0'],
+        'Bike': ['-1','0','0','0','0','0','0','0'],
+        'Walk': ['0','0','0','0','0','0','0','0'],
+        'MM': ['0','0','0','0','0','0','0','0'],
+        'PT-MoD': ['0','+2','+1','0','0','0','0','0'],
+        'PT-Bike': ['0','0','0','0','0','0','0','0'],
+        'PT-Walk': ['0','0','0','0','0','0','0','0'],
+        'PT-MM': ['0','0','0','0','0','0','0','0'],
+        'MoD-Walk': ['+1','+1','+1','0','0','0','0','0'],
+        'MoD-MM': ['0','0','0','0','0','0','0','0'],
+        'Car-Walk': ['0','0','0','0','0','0','0','0'],
+        'MM-Walk': ['0','0','0','0','0','0','0','0'],
+        },
+        1:{
+        'MoD': ['+1','+1','+1','0','0','0','0','0'],
+        'Car': ['0','0','-1','0','0','0','0','0'],
+        'Bike': ['0','0','0','0','0','0','0','0'],
+        'Walk': ['0','0','0','0','0','0','0','0'],
+        'MM': ['0','0','0','0','0','0','0','0'],
+        'PT-MoD': ['0','+1','+1','0','0','0','0','0'],
+        'PT-Bike': ['0','0','0','0','0','0','0','0'],
+        'PT-Walk': ['0','0','0','0','0','0','0','0'],
+        'PT-MM': ['0','0','0','0','0','0','0','0'],
+        'MoD-Walk': ['+2','+2','+2','0','0','0','0','0'],
+        'MoD-MM': ['0','0','0','0','0','0','0','0'],
+        'Car-Walk': ['0','0','0','0','0','0','0','0'],
+        'MM-Walk': ['0','0','0','0','0','0','0','0'],
+        },
+        2:{
+        'MoD': ['+1','+2','+1','0','0','0','0','0'],
+        'Car': ['0','0','0','0','0','0','0','0'],
+        'Bike': ['-1','0','0','0','0','0','0','0'],
+        'Walk': ['0','0','0','0','0','0','0','0'],
+        'MM': ['0','0','0','0','0','0','0','0'],
+        'PT-MoD': ['0','+1','0','+1','0','0','0','0'],
+        'PT-Bike': ['0','0','0','0','0','0','0','0'],
+        'PT-Walk': ['0','0','0','0','0','0','0','0'],
+        'PT-MM': ['0','0','0','0','0','0','0','0'],
+        'MoD-Walk': ['0','0','+1','0','0','0','0','0'],
+        'MoD-MM': ['0','0','0','0','0','0','0','0'],
+        'Car-Walk': ['0','0','0','0','0','0','0','0'],
+        'MM-Walk': ['0','0','0','0','0','0','0','0'],
+        },
+        3:{
+        'MoD': ['+1','+1','+1','0','0','0','0','0'],
+        'Car': ['0','0','-1','0','0','0','0','0'],
+        'Bike': ['0','0','0','0','0','0','0','0'],
+        'Walk': ['0','0','0','0','0','0','0','0'],
+        'MM': ['0','0','0','0','0','0','0','0'],
+        'PT-MoD': ['+1','+2','+1','0','0','0','0','0'],
+        'PT-Bike': ['0','0','0','0','0','0','0','0'],
+        'PT-Walk': ['0','0','0','0','0','0','0','0'],
+        'PT-MM': ['0','0','0','0','0','0','0','0'],
+        'MoD-Walk': ['+2','+1','0','0','0','0','0','0'],
+        'MoD-MM': ['0','0','0','0','0','0','0','0'],
+        'Car-Walk': ['0','0','0','0','0','0','0','0'],
+        'MM-Walk': ['0','0','0','0','0','0','0','0'],
+        },
+        4:{
+        'MoD': ['0','0','0','0','0','0','0','0'],
+        'Car': ['0','0','0','0','0','0','0','0'],
+        'Bike': ['0','0','0','0','0','0','0','0'],
+        'Walk': ['0','0','0','0','0','0','0','0'],
         'MM': ['0','0','0','0','0','0','0','0'],
         'PT-MoD': ['0','0','0','0','0','0','0','0'],
         'PT-Bike': ['0','0','0','0','0','0','0','0'],
@@ -863,14 +920,66 @@ for i in range(no_scen):
         'MoD-MM': ['0','0','0','0','0','0','0','0'],
         'Car-Walk': ['0','0','0','0','0','0','0','0'],
         'MM-Walk': ['0','0','0','0','0','0','0','0'],
-    }
-    interv_impact = pd.DataFrame(interv_impact)
-    interv_impact = interv_impact[:no_pers]
-    interv_impact.set_index(pd.Index(pers_name), inplace=True)
-    interv_impact = interv_impact.apply(lambda col: pd.Categorical(col, categories=['-2', '-1', '0', '+1', '+2'], ordered=True))
+        },
+        5:{
+        'MoD': ['0','0','0','0','0','0','0','0'],
+        'Car': ['0','0','0','0','0','0','0','0'],
+        'Bike': ['0','0','0','0','0','0','0','0'],
+        'Walk': ['0','0','0','0','0','0','0','0'],
+        'MM': ['0','0','0','0','0','0','0','0'],
+        'PT-MoD': ['0','0','0','0','0','0','0','0'],
+        'PT-Bike': ['0','0','0','0','0','0','0','0'],
+        'PT-Walk': ['0','0','0','0','0','0','0','0'],
+        'PT-MM': ['0','0','0','0','0','0','0','0'],
+        'MoD-Walk': ['0','0','0','0','0','0','0','0'],
+        'MoD-MM': ['0','0','0','0','0','0','0','0'],
+        'Car-Walk': ['0','0','0','0','0','0','0','0'],
+        'MM-Walk': ['0','0','0','0','0','0','0','0'],
+        },
+        6:{
+        'MoD': ['0','0','0','0','0','0','0','0'],
+        'Car': ['0','0','0','0','0','0','0','0'],
+        'Bike': ['0','0','0','0','0','0','0','0'],
+        'Walk': ['0','0','0','0','0','0','0','0'],
+        'MM': ['0','0','0','0','0','0','0','0'],
+        'PT-MoD': ['0','0','0','0','0','0','0','0'],
+        'PT-Bike': ['0','0','0','0','0','0','0','0'],
+        'PT-Walk': ['0','0','0','0','0','0','0','0'],
+        'PT-MM': ['0','0','0','0','0','0','0','0'],
+        'MoD-Walk': ['0','0','0','0','0','0','0','0'],
+        'MoD-MM': ['0','0','0','0','0','0','0','0'],
+        'Car-Walk': ['0','0','0','0','0','0','0','0'],
+        'MM-Walk': ['0','0','0','0','0','0','0','0'],
+        },
+        7:{
+        'MoD': ['0','0','0','0','0','0','0','0'],
+        'Car': ['0','0','0','0','0','0','0','0'],
+        'Bike': ['0','0','0','0','0','0','0','0'],
+        'Walk': ['0','0','0','0','0','0','0','0'],
+        'MM': ['0','0','0','0','0','0','0','0'],
+        'PT-MoD': ['0','0','0','0','0','0','0','0'],
+        'PT-Bike': ['0','0','0','0','0','0','0','0'],
+        'PT-Walk': ['0','0','0','0','0','0','0','0'],
+        'PT-MM': ['0','0','0','0','0','0','0','0'],
+        'MoD-Walk': ['0','0','0','0','0','0','0','0'],
+        'MoD-MM': ['0','0','0','0','0','0','0','0'],
+        'Car-Walk': ['0','0','0','0','0','0','0','0'],
+        'MM-Walk': ['0','0','0','0','0','0','0','0'],
+        },
+        }
+
+interv_impact_list = []
+
+for i in range(no_scen):
+    # Create editabe dataframe for inputs on emissions and energy demand per passenger kilometer
+    interv_impact_temp = interv_impact[i]
+    interv_impact_temp = pd.DataFrame(interv_impact_temp)
+    interv_impact_temp = interv_impact_temp[:no_pers]
+    interv_impact_temp.set_index(pd.Index(pers_name), inplace=True)
+    interv_impact_temp = interv_impact_temp.apply(lambda col: pd.Categorical(col, categories=['-2', '-1', '0', '+1', '+2'], ordered=True))
     st.write('Define the estimated impact for scenario ' + scen_names[i])
-    interv_impact = st.experimental_data_editor(interv_impact, key=f'interv_imact{i + 1}')
-    interv_impact_list.append(interv_impact)
+    interv_impact_temp = st.experimental_data_editor(interv_impact_temp, key=f'interv_imact{i + 1}')
+    interv_impact_list.append(interv_impact_temp)
 
 interv_impact_result_list = []
 for i in range(no_scen):
@@ -945,7 +1054,7 @@ for i in range(no_scen):
     # Render the chart using Streamlit
     st.altair_chart(chart_dist_mode, use_container_width=False)
 
-# Step 8
+# Step 14
 st.header('With intervention: CO2e, energy demand, and calories burned per individual persona')
 mods = ['PT','Car','MoD','MM','Bike','Walk']
 
@@ -1078,7 +1187,7 @@ chart_cal_ind_interv = alt.Chart(cal_ind_concat).mark_bar().encode(
 st.altair_chart(chart_cal_ind, use_container_width=False)
 st.altair_chart(chart_cal_ind_interv, use_container_width=False)
 
-# Step 9
+# Step 15
 st.header('With intervention: Impacts considering population size and persona distribution')
 st.subheader('Emissions')
 emis_group_list = []
@@ -1203,7 +1312,7 @@ chart_cal_group_interv = alt.Chart(cal_group_concat).mark_bar().encode(
 st.altair_chart(chart_cal_group, use_container_width=False)
 st.altair_chart(chart_cal_group_interv, use_container_width=False)
 
-# Step 10
+# Step 16
 st.header('With intervention: Aggregated impacts considering scenario likelihood')
 emis_aggr = emis_group_concat.groupby('Scenario').sum().copy()
 emis_aggr = round((emis_aggr.multiply(scen_likelihood_list, axis=0)) / 100)
