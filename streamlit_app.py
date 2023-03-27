@@ -9,9 +9,9 @@ st.title('Urban Mobility Impact Assessment and Comparison Tool')
 st.write('This is a prototype of a tool to help comparing potential impacts of policies on a local urban mobility '
          'scenario. It aims to provide a quick interface to compare impacts across user groups (personas) and across '
          'future scenarios. The standard values have been defined as reference values by the research team. The '
-         'exemplary application aims to compare the impact of eight policies for different persona groups and across '
-         '2030 scenarios, measured by CO2 equivalent (CO2e) emissions, energy demand in mega joule (MJ), and '
-         'calories burned.')
+         'exemplary application aims to compare the impact of an intervention (e.g., policy/technology) for different '
+         'persona groups and across 2030 scenarios, measured by CO2 equivalent (CO2e) emissions, energy demand in '
+         'mega joule (MJ), and calories burned.')
 
 # Information
 st.subheader('Information')
@@ -88,10 +88,13 @@ st.write('Define the level of Intermodality (IM), Mixed Use (MU), Density (DE), 
 scen_chars_prep = [{"IM": "3: high", "MU": "1: low", "DE": "4: very high", "PT": "3: high", },
                    {"IM": "4: very high", "MU": "4: very high", "DE": "4: very high", "PT": "4: very high", },
                    {"IM": "2: medium", "MU": "1: low", "DE": "1: low", "PT": "2: medium", },
-                   {"IM": "2: medium", "MU": "4: very high", "DE": "2: medium", "PT": "3: high"}, ]
+                   {"IM": "2: medium", "MU": "4: very high", "DE": "2: medium", "PT": "3: high"},
+                   {"IM": "2: medium", "MU": "2: medium", "DE": "2: medium", "PT": "2: medium", },
+                   {"IM": "2: medium", "MU": "2: medium", "DE": "2: medium", "PT": "2: medium", },
+                   {"IM": "2: medium", "MU": "2: medium", "DE": "2: medium", "PT": "2: medium", },
+                   {"IM": "2: medium", "MU": "2: medium", "DE": "2: medium", "PT": "2: medium", },]
 
-if no_scen != len(scen_chars_prep):
-    scen_chars_prep = [dict.fromkeys(scen_chars_prep[0]) for _ in range(no_scen)]
+scen_chars_prep = scen_chars_prep[0:no_scen]
 
 scen_chars = pd.DataFrame(scen_chars_prep, index=scen_names)
 scen_chars.IM = scen_chars.IM.astype("category")
@@ -112,6 +115,8 @@ scen_chars.MU = scen_chars.MU.cat.set_categories(["1: low", "2: medium", "3: hig
 scen_chars.DE = scen_chars.DE.cat.set_categories(["1: low", "2: medium", "3: high", "4: very high"])
 scen_chars.PT = scen_chars.PT.cat.set_categories(["1: low", "2: medium", "3: high", "4: very high"])
 
+scen_chars = scen_chars.rename(columns={'IM': 'Intermodality (IM)', 'MU': 'Mixed Use (MU)',
+                                        'DE': 'Density (DE)', 'PT': 'Public Transport'})
 scen_chars = st.experimental_data_editor(scen_chars)
 
 # Scenario images
@@ -184,7 +189,7 @@ for i in range(no_pers):
 # Persona characteristics
 st.subheader('Persona characteristics')
 st.write('Set the number of home-work-home kilometres for a normal day for each persona and their weight in '
-         'kilograms (for calorie calculations)')
+         'kilograms (for calorie calculations).')
 
 # Define default values for all personas
 default_values = {'Jacqueline': [60, 57], 'Thierry': [40, 84], 'Adrian': [10, 72], 'Rui': [4, 53]}
@@ -193,6 +198,8 @@ for i in range(4, no_pers):
 
 # Create the DataFrame with the default values
 pers_chars = pd.DataFrame.from_dict(default_values, orient='index', columns=['Distance (km)', 'Weight (kg)']).fillna(0)
+
+pers_chars = st.experimental_data_editor(pers_chars)
 
 # Persona images
 st.subheader('Persona images')
@@ -247,7 +254,7 @@ if total_likelihood != 100:
 
 # Number of people moving to/on the plateau per day
 st.subheader('Number of people moving to/on the plateau per day')
-no_people = st.number_input('How many people move to/on the plateau per day?', value=50000)
+no_people = st.number_input('How many people move to/on the plateau per day?', value=50000, step=1000)
 
 # Persona weights likelihood sliders
 st.subheader('Persona weights in overall population')
@@ -255,7 +262,9 @@ st.write('Define for each of the personas the weight in percent between 0 and 10
          'population defined above are similar to the defined persona. The weights must add up to 100.')
 pers_weights = []
 for i in range(no_pers):
-    default_weights = [20, 20, 15, 45] + [0] * (no_scen - 4)
+    default_weights = [20, 20, 15, 45]
+    if no_pers > 4:
+        default_weights += [0] * (no_pers - 4)
     pers_weights.append(st.slider(f'Weight in percent of {pers_name[i]} in overall population:', min_value=0,
                                   max_value=100, step=5, value=default_weights[i], key=f"pers_weight_{i}"))
 total_weights = sum(pers_weights)
@@ -412,21 +421,21 @@ mode_prep_s4 = [
 ]
 mode_prep_s5 = [
     # Persona n
-    {'MoD': "0", 'Car': "0", 'Bike': "0", 'Walk': "0",
-     'MM': "0", 'PT-MoD': "0", 'PT-Bike': "0", 'PT-Walk': "0",
-     'PT-MM': "0", 'MoD-Walk': "0", 'MoD-MM': "0", 'Car-Walk': "0", 'MM-Walk': "0"},
+    {'MoD': "1", 'Car': "1", 'Bike': "1", 'Walk': "1",
+     'MM': "1", 'PT-MoD': "1", 'PT-Bike': "1", 'PT-Walk': "1",
+     'PT-MM': "1", 'MoD-Walk': "1", 'MoD-MM': "1", 'Car-Walk': "1", 'MM-Walk': "1"},
     # Persona n
-    {'MoD': "0", 'Car': "0", 'Bike': "0", 'Walk': "0",
-     'MM': "0", 'PT-MoD': "0", 'PT-Bike': "0", 'PT-Walk': "0",
-     'PT-MM': "0", 'MoD-Walk': "0", 'MoD-MM': "0", 'Car-Walk': "0", 'MM-Walk': "0"},
+    {'MoD': "1", 'Car': "1", 'Bike': "1", 'Walk': "1",
+     'MM': "1", 'PT-MoD': "1", 'PT-Bike': "1", 'PT-Walk': "1",
+     'PT-MM': "1", 'MoD-Walk': "1", 'MoD-MM': "1", 'Car-Walk': "1", 'MM-Walk': "1"},
     # Persona n
-    {'MoD': "0", 'Car': "0", 'Bike': "0", 'Walk': "0",
-     'MM': "0", 'PT-MoD': "0", 'PT-Bike': "0", 'PT-Walk': "0",
-     'PT-MM': "0", 'MoD-Walk': "0", 'MoD-MM': "0", 'Car-Walk': "0", 'MM-Walk': "0"},
+    {'MoD': "1", 'Car': "1", 'Bike': "1", 'Walk': "1",
+     'MM': "1", 'PT-MoD': "1", 'PT-Bike': "1", 'PT-Walk': "1",
+     'PT-MM': "1", 'MoD-Walk': "1", 'MoD-MM': "1", 'Car-Walk': "1", 'MM-Walk': "1"},
     # Persona n
-    {'MoD': "0", 'Car': "0", 'Bike': "0", 'Walk': "0",
-     'MM': "0", 'PT-MoD': "0", 'PT-Bike': "0", 'PT-Walk': "0",
-     'PT-MM': "0", 'MoD-Walk': "0", 'MoD-MM': "0", 'Car-Walk': "0", 'MM-Walk': "0"},
+    {'MoD': "1", 'Car': "1", 'Bike': "1", 'Walk': "1",
+     'MM': "1", 'PT-MoD': "1", 'PT-Bike': "1", 'PT-Walk': "1",
+     'PT-MM': "1", 'MoD-Walk': "1", 'MoD-MM': "1", 'Car-Walk': "1", 'MM-Walk': "1"},
     # Persona n
     {'MoD': "0", 'Car': "0", 'Bike': "0", 'Walk': "0",
      'MM': "0", 'PT-MoD': "0", 'PT-Bike': "0", 'PT-Walk': "0",
@@ -444,9 +453,9 @@ mode_prep_s5 = [
      'MM': "0", 'PT-MoD': "0", 'PT-Bike': "0", 'PT-Walk': "0",
      'PT-MM': "0", 'MoD-Walk': "0", 'MoD-MM': "0", 'Car-Walk': "0", 'MM-Walk': "0"}
 ]
-mode_prep_s6 = mode_prep_s5
-mode_prep_s7 = mode_prep_s5
-mode_prep_s8 = mode_prep_s5
+mode_prep_s6 = mode_prep_s5.copy()
+mode_prep_s7 = mode_prep_s5.copy()
+mode_prep_s8 = mode_prep_s5.copy()
 
 mode_prep = {0: mode_prep_s1, 1: mode_prep_s2, 2: mode_prep_s3, 3: mode_prep_s4,
              4: mode_prep_s5, 5: mode_prep_s6, 6: mode_prep_s7, 7: mode_prep_s8}
@@ -471,7 +480,7 @@ for i in range(no_scen):
         f'(0 = unlikely, 4 = very likely)')
     if scen_images[i] is not None:
         st.image(scen_images[i], width=300)
-    mode_pref = st.experimental_data_editor(mode_pref)
+    mode_pref = st.experimental_data_editor(mode_pref, key=f'mode_pref{i + 1}')
     mode_pref_list.append(mode_pref)
 
 
@@ -690,6 +699,7 @@ emis_group_list = []
 
 for i in range(no_scen):
     emis_group = emis_ind_list[i].copy()
+    emis_group = emis_group[0:no_pers]
     # Divided by 100 for percentage of population, by 1000 for emissions in tons instead of kg
     emis_group = round((emis_group.multiply(pers_weights, axis=0)) * no_people / 100000)
     emis_group = emis_group[[scen_names[i]]]
@@ -730,6 +740,7 @@ ener_group_list = []
 
 for i in range(no_scen):
     ener_group = ener_ind_list[i].copy()
+    ener_group = ener_group[0:no_pers]
     # Divided by 100 for percentage of population, by 1000 for energy in giga joule
     ener_group = round((ener_group.multiply(pers_weights, axis=0)) * no_people / 100000)
     ener_group = ener_group[[scen_names[i]]]
@@ -770,6 +781,7 @@ cal_group_list = []
 
 for i in range(no_scen):
     cal_group = cal_ind_list[i].copy()
+    cal_group = cal_group[0:no_pers]
     # Divided by 100 for percentage of population and 1000 for pizza
     cal_group = round((cal_group.multiply(pers_weights, axis=0)) * no_people / 100000)
     cal_group = cal_group[[scen_names[i]]]
@@ -1171,7 +1183,7 @@ chart_cal_ind_interv = alt.Chart(cal_ind_concat).mark_bar().encode(
 ).properties(
     width=160,
     title={
-        'text': 'Daily calories burned per persona across scenarios',
+        'text': 'With intervention: Daily calories burned per persona across scenarios',
         'fontSize': 16,
         'fontWeight': 'bold',
         'anchor': 'start',
@@ -1193,6 +1205,7 @@ emis_group_list = []
 
 for i in range(no_scen):
     emis_group = emis_ind_list[i].copy()
+    emis_group = emis_group[0:no_pers]
     # Divided by 100 for percentage of population, by 1000 for emissions in tons instead of kg
     emis_group = round((emis_group.multiply(pers_weights, axis=0)) * no_people / 100000)
     emis_group = emis_group[[scen_names[i]]]
@@ -1234,6 +1247,7 @@ ener_group_list = []
 
 for i in range(no_scen):
     ener_group = ener_ind_list[i].copy()
+    ener_group = ener_group[0:no_pers]
     # Divided by 100 for percentage of population, by 1000 for energy in giga joule
     ener_group = round((ener_group.multiply(pers_weights, axis=0)) * no_people / 100000)
     ener_group = ener_group[[scen_names[i]]]
@@ -1275,6 +1289,7 @@ cal_group_list = []
 
 for i in range(no_scen):
     cal_group = cal_ind_list[i].copy()
+    cal_group = cal_group[0:no_pers]
     # Divided by 100 for percentage of population and 1000 for pizza
     cal_group = round((cal_group.multiply(pers_weights, axis=0)) * no_people / 100000)
     cal_group = cal_group[[scen_names[i]]]
