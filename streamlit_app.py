@@ -41,7 +41,7 @@ scen_desc = []
 for i in range(no_scen):
     default_name = f'S{i + 1}: '
     if i == 0:
-        default_name += '2030: Saclay 2.0'
+        default_name += '2030 | Saclay 2.0'
         default_desc = 'Continuation of today’s development. The Saclay Plateau today is dominated by universities ' \
                        'and technology-related institutions. Some residential buildings and other functions ' \
                        'exist and are growing. Nevertheless, on weekend or holiday periods, ' \
@@ -52,21 +52,21 @@ for i in range(no_scen):
                        'depending on the incoming commuters, primarily between Tuesday and Thursday and ' \
                        'barely staying or utilising other functions on the plateau.'
     elif i == 1:
-        default_name += '2030: Paris 2.0'
+        default_name += '2030 | Paris 2.0'
         default_desc = 'High-density, mixed-use neighbourhood. The second scenario is more optimistic on the ' \
                        'integrated development of the plateau. It assumes that a large number of residential' \
                        ' developments, going further than only student and international researcher housing, ' \
                        'adds a critical mass of population density to allow for a variety of other functions to ' \
                        'arise and remain active even in holiday seasons or weekends.'
     elif i == 2:
-        default_name += '2030: Rural Campus'
+        default_name += '2030 | Rural Campus'
         default_desc = 'Low-density, low diversity rural district. This scenario describes mostly the plateau as it ' \
                        'has been since the 1970s. While more offices and universities are added, its functions and ' \
                        'character remains primarily rural. Residential functions, as well as the accompanying ' \
                        'other functions, remain limited and their growth stagnates, maintaining primarily the status ' \
                        'quo of activity and functional mix.'
     elif i == 3:
-        default_name += '2030: Village Campus'
+        default_name += '2030 | Village Campus'
         default_desc = 'High-density active core, surrounded by low-density. As a mix between the scenario ' \
                        '‘Paris 2.0’ and ‘Rural Campus’, this scenario is defined by overall low density and ' \
                        'restricted developments. However, it has modern yet traditional French village cores with ' \
