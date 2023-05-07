@@ -656,8 +656,8 @@ cal_ind_list = []
 for i in range(no_scen):
     dist_mode_list_cal = dist_mode_list[i].copy()
     cal_ind = dist_mode_list_cal
-    cal_ind[scen_names[i]] = round((cal_ind['Bike'].multiply(pers_chars['Weight (kg)'], axis=0) *
-                                    bike_calories_input) + (cal_ind['Walk'].multiply(pers_chars['Weight (kg)'],
+    cal_ind[scen_names[i]] = round((cal_ind['Bike'].multiply(pers_chars['Bodyweight (kg)'], axis=0) *
+                                    bike_calories_input) + (cal_ind['Walk'].multiply(pers_chars['Bodyweight (kg)'],
                                                                                      axis=0) * walk_calories_input),0)
     cal_ind = cal_ind[[scen_names[i]]]
     cal_ind_list.append(cal_ind)
@@ -1161,8 +1161,8 @@ cal_ind_list = []
 for i in range(no_scen):
     dist_mode_list_cal = dist_mode_list_interv[i].copy()
     cal_ind = dist_mode_list_cal
-    cal_ind[scen_names[i]] = round((cal_ind['Bike'].multiply(pers_chars['Weight (kg)'], axis=0) *
-                                    bike_calories_input) + (cal_ind['Walk'].multiply(pers_chars['Weight (kg)'],
+    cal_ind[scen_names[i]] = round((cal_ind['Bike'].multiply(pers_chars['Bodyweight (kg)'], axis=0) *
+                                    bike_calories_input) + (cal_ind['Walk'].multiply(pers_chars['Bodyweight (kg)'],
                                                                                      axis=0) * walk_calories_input),0)
     cal_ind = cal_ind[[scen_names[i]]]
     cal_ind_list.append(cal_ind)
