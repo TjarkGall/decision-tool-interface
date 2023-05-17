@@ -817,10 +817,8 @@ chart_cal_group = alt.Chart(cal_group_concat).mark_bar().encode(
 # Render the chart using Streamlit
 st.altair_chart(chart_cal_group, use_container_width=False)
 
-# Step 10 # errors
+# Step 10
 st.header('Aggregated impacts considering scenario likelihood')
-
-st.write(emis_group_concat.head())
 
 emis_aggr = emis_group_concat.groupby('Scenario').sum().copy()
 emis_aggr = round((emis_aggr.multiply(scen_likelihood_list, axis=0)) / 100)
