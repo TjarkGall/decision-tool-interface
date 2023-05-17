@@ -819,6 +819,9 @@ st.altair_chart(chart_cal_group, use_container_width=False)
 
 # Step 10 # errors
 st.header('Aggregated impacts considering scenario likelihood')
+
+st.write(emis_group_concat.head())
+
 emis_aggr = emis_group_concat.groupby('Scenario').sum().copy()
 emis_aggr = round((emis_aggr.multiply(scen_likelihood_list, axis=0)) / 100)
 indic_aggr = emis_aggr.sum()
