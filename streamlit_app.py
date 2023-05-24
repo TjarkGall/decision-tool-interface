@@ -822,11 +822,13 @@ st.header('Aggregated impacts considering scenario likelihood')
 
 emis_aggr = emis_group_concat.groupby('Scenario').sum().copy()
 # Convert relevant column(s) in `emis_aggr` to numeric type
-emis_aggr['column_name'] = pd.to_numeric(emis_aggr['column_name'])
+emis_aggr = pd.to_numeric(emis_aggr)
 # Perform the division operation
 emis_aggr = emis_aggr.multiply(scen_likelihood_list, axis=0) / 100
 # Round the values
 emis_aggr = emis_aggr.round()
+#emis_aggr = round((emis_aggr.multiply(scen_likelihood_list, axis=0)) / 100)
+
 indic_aggr = emis_aggr.sum()
 
 ener_aggr = ener_group_concat.groupby('Scenario').sum().copy()
