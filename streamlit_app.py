@@ -821,7 +821,12 @@ st.altair_chart(chart_cal_group, use_container_width=False)
 st.header('Aggregated impacts considering scenario likelihood')
 
 emis_aggr = emis_group_concat.groupby('Scenario').sum().copy()
-emis_aggr = round((emis_aggr.multiply(scen_likelihood_list, axis=0)) / 100)
+# Convert relevant column(s) in `emis_aggr` to numeric type
+emis_aggr['column_name'] = pd.to_numeric(emis_aggr['column_name'])
+# Perform the division operation
+emis_aggr = emis_aggr.multiply(scen_likelihood_list, axis=0) / 100
+# Round the values
+emis_aggr = emis_aggr.round()
 indic_aggr = emis_aggr.sum()
 
 ener_aggr = ener_group_concat.groupby('Scenario').sum().copy()
