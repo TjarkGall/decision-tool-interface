@@ -823,11 +823,8 @@ st.header('Aggregated impacts considering scenario likelihood')
 emis_aggr = emis_group_concat.groupby('Scenario').sum().copy()
 emis_aggr = round((emis_aggr.multiply(scen_likelihood_list, axis=0)) / 100)
 
-st.write(emis_aggr)
-
 indic_aggr = {}
 indic_aggr = emis_aggr.sum()
-st.write(indic_aggr)
 
 ener_aggr = ener_group_concat.groupby('Scenario').sum().copy()
 ener_aggr = round((ener_aggr.multiply(scen_likelihood_list, axis=0)) / 100)
