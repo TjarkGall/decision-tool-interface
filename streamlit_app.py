@@ -4,6 +4,66 @@ import pandas as pd
 from PIL import Image
 import streamlit as st
 
+# Sidebar
+# Dropdown: You can use this sidebar to show key info during the process. Choose want you want to see.
+# The width of the sidebar can changed by dragging its border left or right.
+
+
+# Set the title and description
+st.sidebar.title("Info Sidebar")
+st.sidebar.write("You can use this sidebar to show key info during the process. Everything is also included in the "
+                 "main text on the right. The width of the sidebar can changed by dragging its border.")
+
+# Create the dropdown menu with options
+selected_option = st.sidebar.selectbox("I want to see the", ("Process description & Glossary",
+                                                             "Scenario overview",
+                                                             "Persona overview",
+                                                             "Persona characteristics",
+                                                             "Emission/energy per km"))
+st.sidebar.markdown("---")
+
+# Display the corresponding code based on the selected option
+if selected_option == "Process description & Glossary":
+   with st.sidebar:
+       # Add a hyperlink to navigate to Option 2
+       st.sidebar.markdown("[Go to Option 2](#step-1)")
+       st.subheader('Process')
+       st.write("Step 1: Defining Future Scenarios")
+       st.write("Step 2: Defining Future Personas")
+       st.write("Step 3: Set likelihood of scenarios")
+       st.write("Step 4: Define population size")
+       st.write("Step 5: Set persona weights")
+       st.write("Step 6: Set likelihood to use mode per scenario/persona")
+       st.write("Step 7: Set values for impact assessment")
+       st.write("Step 8a: Impacts per persona group")
+       st.write("Step 8b: Impacts considering population size and persona distribution")
+       st.write("Step 8c: Aggregated impacts considering scenario likelihood")
+       st.write("Step 9: Defining a potential intervention")
+       st.write("Step 10: Impacts considering intervention")
+       st.subheader("Glossary")
+       st.write("Scenarios are..")
+       st.write("Personas are..")
+
+elif selected_option == "Scenario overview":
+    with st.sidebar:
+        st.write("Test text")
+        st.title("test")
+
+elif selected_option == "Persona overview":
+    with st.sidebar:
+        st.write("Test text")
+        st.title("test")
+
+elif selected_option == "Persona characteristics":
+    with st.sidebar:
+        st.write("Test text")
+        st.title("test")
+
+elif selected_option == "Emission/energy per km":
+    with st.sidebar:
+        st.write("Test text")
+        st.title("test")
+
 # Introduction
 st.title('Urban Mobility Impact Assessment and Comparison Tool')
 st.write('This is a prototype of a tool to help comparing potential impacts of policies on a local urban mobility '
@@ -28,7 +88,8 @@ image = Image.open('data/images/Anthropolis_logo_colour.png')
 st.image(image, use_column_width=True)
 
 # Step 2: Defining Future Scenarios
-st.header('Defining Future Scenarios')
+st.markdown("<h1 id='step-1'>Defining Future Scenarios</h1>", unsafe_allow_html=True)
+# st.header('Step 1: Defining Future Scenarios')
 
 # Number of scenarios
 st.subheader('Number of scenarios')
@@ -140,8 +201,8 @@ for i in range(no_scen):
     st.write(scen_desc[i])
     st.write(scen_chars.loc[scen_names[i]])
 
-# Step 3: Defining Future Personas
-st.header('Defining Future Personas')
+# Defining Future Personas
+st.header('Step 2: Defining Future Personas')
 
 # Number of personas
 st.subheader('Number of personas')
@@ -222,8 +283,8 @@ for i in range(no_pers):
     st.write(pers_desc[i])
     st.write(pers_chars.loc[pers_name[i]])
 
-# Step 4: Likelihood of scenarios
-st.header('Likelihood of scenarios')
+# Step 3: Likelihood of scenarios
+st.header('Step 3: Set likelihood of scenarios')
 
 # Scenario description
 st.write('Define for each of the scenarios the probability in % between 0 and 100. The sum must add up to 100.')
@@ -253,11 +314,11 @@ if total_likelihood != 100:
     st.markdown('<style>div.stError > p:first-child {color: red; font-weight: bold;}</style>', unsafe_allow_html=True)
 
 # Number of people moving to/on the plateau per day
-st.subheader('Number of people moving to/on the plateau per day')
+st.header('Step 4: Define population size')
 no_people = st.number_input('How many people move to/on the plateau per day?', value=50000, step=1000)
 
 # Persona weights likelihood sliders
-st.subheader('Persona weights in overall population')
+st.header('Step 5: Set persona weights')
 st.write('Define for each of the personas the weight in percent between 0 and 100. 10 means that 10% of the overall '
          'population defined above are similar to the defined persona. The weights must add up to 100.')
 pers_weights = []
@@ -272,8 +333,8 @@ st.write(f'Total weight: {total_weights}%')
 if total_weights != 100:
     st.error('Total weight must be 100%')
 
-# Step 5: Mode likelihoods
-st.header('Likelihood to use mode per scenario and persona')
+# Mode likelihoods
+st.header('Step 6: Set likelihood to use mode per scenario/persona')
 
 # Text description
 st.write('In this section, we define for each of the scenarios the likelihood for each persona to use a certain mode. '
@@ -483,9 +544,30 @@ for i in range(no_scen):
     mode_pref = st.experimental_data_editor(mode_pref, key=f'mode_pref{i + 1}')
     mode_pref_list.append(mode_pref)
 
+# Step 7
+st.header('Step 7: Set values for impact assessment')
 
-# Step 6: Mode likelihoods
-st.header('Distribution of travel distances by mode and persona')
+# Create the input fields for individual values
+walk_calories_input = st.number_input('Adapt the value for calories burned per kg per km while walking:', value=1)
+bike_calories_input = st.number_input('Adapt the value for calories burned per kg per km while cycling:', value=0.4)
+
+# Create editabe dataframe for inputs on emissions and energy demand per passenger kilometer
+emissions_energy = {
+    'CO2e': [15, 50, 150, 10, 0, 0],
+    'MJ': [0.2, 0.8, 1.8, 0.5, 0, 0]
+}
+
+# Create the dataframe
+emissions_energy = pd.DataFrame(emissions_energy, index=['PT', 'Car', 'MoD', 'MM', 'Bike', 'Walk']).T
+
+# Add a title above the dataframe
+st.write('Adapt the CO2 equivalent emissions in g/passenger km and energy demand in MJ/passenger km')
+emissions_energy = st.experimental_data_editor(emissions_energy)
+
+
+# Mode likelihoods
+st.header('Step 8a: Impacts per persona group')
+st.subheader('Distribution of travel distances by mode and persona')
 # Calculate kilometers per mode for each persona in scenario 1
 dist_mode_list = []
 
@@ -542,27 +624,8 @@ for i in range(no_scen):
 
     # Render the chart using Streamlit
     st.altair_chart(chart_dist_mode, use_container_width=False)
-# Step 7
-st.header('Underlying values for impact assessment')
 
-# Create the input fields for individual values
-walk_calories_input = st.number_input('Adapt the value for calories burned per kg per km while walking:', value=1)
-bike_calories_input = st.number_input('Adapt the value for calories burned per kg per km while cycling:', value=0.4)
 
-# Create editabe dataframe for inputs on emissions and energy demand per passenger kilometer
-emissions_energy = {
-    'CO2e': [15, 50, 150, 10, 0, 0],
-    'MJ': [0.2, 0.8, 1.8, 0.5, 0, 0]
-}
-
-# Create the dataframe
-emissions_energy = pd.DataFrame(emissions_energy, index=['PT', 'Car', 'MoD', 'MM', 'Bike', 'Walk']).T
-
-# Add a title above the dataframe
-st.write('Adapt the CO2 equivalent emissions in g/passenger km and energy demand in MJ/passenger km')
-emissions_energy = st.experimental_data_editor(emissions_energy)
-
-# Step 8
 st.header('CO2e, energy demand, and calories burned per individual persona')
 mods = ['PT','Car','MoD','MM','Bike','Walk']
 
@@ -693,7 +756,7 @@ chart_cal_ind = alt.Chart(cal_ind_concat).mark_bar().encode(
 st.altair_chart(chart_cal_ind, use_container_width=False)
 
 # Step 9
-st.header('Impacts considering population size and persona distribution')
+st.header('Step 8b: Impacts considering population size and persona distribution')
 st.subheader('Emissions')
 emis_group_list = []
 
@@ -818,7 +881,7 @@ chart_cal_group = alt.Chart(cal_group_concat).mark_bar().encode(
 st.altair_chart(chart_cal_group, use_container_width=False)
 
 # Step 10
-st.header('Aggregated impacts considering scenario likelihood')
+st.header('Step 8c: Aggregated impacts considering scenario likelihood')
 
 emis_aggr = emis_group_concat.groupby('Scenario').sum().copy()
 emis_aggr = round((emis_aggr.multiply(scen_likelihood_list, axis=0)) / 100)
@@ -843,7 +906,7 @@ st.write('Taking the earlier established probability of each scenario in conside
          'a total of '+ str(indic_aggr[2]) + ' calories per day or ' + str(indic_aggr[1] * 365) + ' per year.')
 
 # Step 11: Defining Potential Interventions
-st.header('Defining a potential intervention')
+st.header('Step 9: Defining a potential intervention')
 st.write('For inspiration on possible interventions, have a look at our '
          '<a href="https://urban-mobility-futures.notion.site/3b4cb3e4fccd48a38cda6149a0d6ffa1?v=8ce1115a24e7436f8c31bdd58a3c74ef">Urban Mobility Solution Database.</a>', unsafe_allow_html=True)
 
@@ -1008,7 +1071,7 @@ for i in range(no_scen):
     interv_impact_result_list.append(result)
 
 # Step 13: Repeating previous steps with new numbers
-st.header('Updated impacts taking intervention in consideration')
+st.header('Step 10: Updated impacts taking intervention in consideration')
 
 st.subheader('With intervention: Distribution of travel distances by mode and persona')
 # Calculate kilometers per mode for each persona in scenario 1
@@ -1068,7 +1131,7 @@ for i in range(no_scen):
     # Render the chart using Streamlit
     st.altair_chart(chart_dist_mode, use_container_width=False)
 
-# Step 14
+# With interventions
 st.header('With intervention: CO2e, energy demand, and calories burned per individual persona')
 mods = ['PT','Car','MoD','MM','Bike','Walk']
 
