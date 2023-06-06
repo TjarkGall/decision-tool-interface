@@ -6,9 +6,6 @@ from PIL import Image
 import streamlit as st
 from itertools import islice
 
-import matplotlib.pyplot as plt
-
-
 # Introduction
 st.title('Urban Mobility Impact Assessment and Comparison Tool')
 st.write('This is a prototype of a tool to compare impacts of potential interventions on a local urban mobility '
