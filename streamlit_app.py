@@ -1,8 +1,11 @@
 import altair as alt
+from altair import Chart, X, Y, Color, Scale, Column
 import numpy as np
 import pandas as pd
 from PIL import Image
 import streamlit as st
+from itertools import islice
+
 import matplotlib.pyplot as plt
 
 
@@ -210,6 +213,7 @@ st.write('Set the number of home-work-home kilometres for a normal day for each 
 default_values = {'Jacqueline': [60, 57], 'Thierry': [40, 84], 'Adrian': [10, 72], 'Rui': [4, 53]}
 for i in range(4, no_pers):
     default_values[f'Persona {i + 1}'] = [0, 0]
+default_values = dict(islice(default_values.items(), no_pers))
 
 # Create the DataFrame with the default values
 pers_chars = pd.DataFrame.from_dict(default_values, orient='index', columns=['Distance (km)', 'Bodyweight (kg)']).fillna(0)
@@ -560,6 +564,9 @@ for i in range(no_scen):
     dist_mode = dist_mode.mul(pers_chars['Distance (km)'], axis=0).round(1)
     dist_mode_list.append(dist_mode)
 
+# Colours
+colours_ind = ['#193f5a', '#db666e', '#eca83e', '#62548e', '#e18054', '#c65a86', '#344c79', '#975792']
+
 # Transform the dataframe to long format
 for i in range(no_scen):
     dist_mode = dist_mode_list[i]
@@ -573,10 +580,10 @@ for i in range(no_scen):
         y=alt.Y('km:Q', axis=alt.Axis(title='Kilometres')),
         color=alt.Color('Mode:N',
                         scale=alt.Scale(domain=["PT","Car","MoD", "MM", "Bike", "Walk"],
-                                        range=['#f39c12', '#16a085', '#f1c40f', '#34495e', '#e74c3c', '#2ecc71'])),
+                                        range=colours_ind)),
         column=alt.Column('persona:N', header=alt.Header(labelOrient='bottom', title=None))
     ).properties(
-        width=160,
+        width=140,
         title={
             'text': 'Modal share in km for ' + scen_names[i],
             'fontSize': 16,
@@ -620,10 +627,10 @@ chart_emis_ind = alt.Chart(emis_ind_concat).mark_bar().encode(
     y=alt.Y('CO2e:Q', axis=alt.Axis(title='CO2 equivalent in kg')),
     color=alt.Color('Scenario:N',
                     scale=alt.Scale(domain=scen_names,
-                                    range=['#f39c12', '#16a085', '#f1c40f', '#34495e', '#e74c3c', '#2ecc71'])),
+                                    range=colours_ind)),
     column=alt.Column('Persona:N', header=alt.Header(labelOrient='bottom', title=None))
 ).properties(
-    width=160,
+    width=140,
     title={
         'text': 'Daily emissions in CO2e per persona across scenarios',
         'fontSize': 16,
@@ -661,10 +668,10 @@ chart_ener_ind = alt.Chart(ener_ind_concat).mark_bar().encode(
     y=alt.Y('Energy:Q', axis=alt.Axis(title='Energy in mega joule')),
     color=alt.Color('Scenario:N',
                     scale=alt.Scale(domain=scen_names,
-                                    range=['#f39c12', '#16a085', '#f1c40f', '#34495e', '#e74c3c', '#2ecc71'])),
+                                    range=colours_ind)),
     column=alt.Column('Persona:N', header=alt.Header(labelOrient='bottom', title=None))
 ).properties(
-    width=160,
+    width=140,
     title={
         'text': 'Daily energy demand in MJ per persona across scenarios',
         'fontSize': 16,
@@ -704,10 +711,10 @@ chart_cal_ind = alt.Chart(cal_ind_concat).mark_bar().encode(
     y=alt.Y('Calories:Q', axis=alt.Axis(title='Calories burned during commute')),
     color=alt.Color('Scenario:N',
                     scale=alt.Scale(domain=scen_names,
-                                    range=['#f39c12', '#16a085', '#f1c40f', '#34495e', '#e74c3c', '#2ecc71'])),
+                                    range=colours_ind)),
     column=alt.Column('Persona:N', header=alt.Header(labelOrient='bottom', title=None))
 ).properties(
-    width=160,
+    width=140,
     title={
         'text': 'Daily calories burned per persona across scenarios',
         'fontSize': 16,
@@ -749,10 +756,10 @@ chart_emis_group = alt.Chart(emis_group_concat).mark_bar().encode(
     y=alt.Y('CO2e:Q', axis=alt.Axis(title='CO2e per group and scenario in tons (t)')),
     color=alt.Color('Scenario:N',
                     scale=alt.Scale(domain=scen_names,
-                                    range=['#f39c12', '#16a085', '#f1c40f', '#34495e', '#e74c3c', '#2ecc71'])),
+                                    range=colours_ind)),
     column=alt.Column('Persona:N', header=alt.Header(labelOrient='bottom', title=None))
 ).properties(
-    width=160,
+    width=140,
     title={
         'text': 'CO2 equivalent in tons for aggregated persona group',
         'fontSize': 16,
@@ -790,10 +797,10 @@ chart_ener_group = alt.Chart(ener_group_concat).mark_bar().encode(
     y=alt.Y('Energy:Q', axis=alt.Axis(title='Energy demand per group and scenario in tons (t)')),
     color=alt.Color('Scenario:N',
                     scale=alt.Scale(domain=scen_names,
-                                    range=['#f39c12', '#16a085', '#f1c40f', '#34495e', '#e74c3c', '#2ecc71'])),
+                                    range=colours_ind)),
     column=alt.Column('Persona:N', header=alt.Header(labelOrient='bottom', title=None))
 ).properties(
-    width=160,
+    width=140,
     title={
         'text': 'Energy demand in giga joule (MJ*1000)',
         'fontSize': 16,
@@ -831,10 +838,10 @@ chart_cal_group = alt.Chart(cal_group_concat).mark_bar().encode(
     y=alt.Y('Calories:Q', axis=alt.Axis(title='Calories burned per group and scenario')),
     color=alt.Color('Scenario:N',
                     scale=alt.Scale(domain=scen_names,
-                                    range=['#f39c12', '#16a085', '#f1c40f', '#34495e', '#e74c3c', '#2ecc71'])),
+                                    range=colours_ind)),
     column=alt.Column('Persona:N', header=alt.Header(labelOrient='bottom', title=None))
 ).properties(
-    width=160,
+    width=140,
     title={
         'text': 'Pizzas burned per persona group (1 pizza = 1000 cal)',
         'fontSize': 16,
@@ -880,15 +887,19 @@ st.header('Step 9a: Defining potential interventions')
 st.write('You can use this tool to compare the impact of two interventions. For inspiration, have a look at our '
          '<a href="https://urban-mobility-futures.notion.site/3b4cb3e4fccd48a38cda6149a0d6ffa1?v=8ce1115a24e7436f8c31bdd58a3c74ef">Urban Mobility Solution Database.</a>', unsafe_allow_html=True)
 
-default_name_1 = 'On demand shuttles'
-default_desc_1 = 'Shared electric on demand shuttles that move on demand between key destinations.'
-st.text_input(f'Intervention 1:', value=default_name_1, key='intervention-name-1')
-st.text_area(f'Intervention 1 description (max. 250 characters):', value=default_desc_1, max_chars=250, key='intervention-description-1')
+interv_name_1 = 'On demand shuttles'
+interv_acr_1 = 'MoD'
+interv_desc_1 = 'Shared electric on demand shuttles that move on demand between key destinations.'
+st.text_input(f'Intervention 1:', value=interv_name_1, key='intervention-name-1')
+st.text_input(f'Intervention 1 acronym:', value=interv_acr_1, max_chars=5, key='intervention-acronym-1')
+st.text_area(f'Intervention 1 description (max. 250 characters):', value=interv_desc_1, max_chars=250, key='intervention-description-1')
 
-default_name_2 = 'E-Bike sharing service'
-default_desc_2 = 'Affordable e-bikes for rent connecting the plateau, stations, the villages in the valley, and Massy-Palaiseau.'
-st.text_input(f'Intervention 2:', value=default_name_2, key='intervention-name-2')
-st.text_area(f'Intervention 2 description (max. 250 characters):', value=default_desc_2, max_chars=250, key='intervention-description-2')
+interv_name_2 = 'E-Bike sharing service'
+interv_acr_2 = 'eBike'
+interv_desc_2 = 'Affordable e-bikes for rent connecting the plateau, stations, the villages in the valley, and Massy-Palaiseau.'
+st.text_input(f'Intervention 2:', value=interv_name_2, key='intervention-name-2')
+st.text_input(f'Intervention 2 acronym:', value=interv_acr_2, max_chars=5, key='intervention-acronym-2')
+st.text_area(f'Intervention 2 description (max. 250 characters):', value=interv_desc_2, max_chars=250, key='intervention-description-2')
 
 
 # Step 9b: Intervention impacts
@@ -898,7 +909,7 @@ st.write('Set the assumed impact the two interventions might have across scenari
          ' means that the likelihood to use a certain mode increases strongly.')
 
 ### Input collection for intervention 1
-st.subheader(f'Impact of intervention 1: {default_name_1}')
+st.subheader(f'Impact of intervention 1: {interv_name_1}')
 interv_1_impact = {
         0:{
         'MoD': ['+1: Slight increase','+2: Strong increase','+1: Slight increase','0: No change','0: No change','0: No change','0: No change','0: No change'],
@@ -1049,7 +1060,7 @@ for i in range(no_scen):
     interv_1_impact_result_list.append(result)
 
 ### Input collection for intervention 2
-st.subheader(f'Impact of intervention 2: {default_name_2}')
+st.subheader(f'Impact of intervention 2: {interv_name_2}')
 interv_2_impact = {
         0:{
         'MoD': ['0: No change','0: No change','0: No change','0: No change','0: No change','0: No change','0: No change','0: No change'],
@@ -1173,6 +1184,8 @@ interv_2_impact = {
         },
         }
 interv_2_impact_list = []
+
+
 for i in range(no_scen):
     # Create editabe dataframe for inputs on emissions and energy demand per passenger kilometer
     interv_2_impact_temp = interv_2_impact[i]
@@ -1183,6 +1196,7 @@ for i in range(no_scen):
     st.write('Define the estimated impact for scenario ' + scen_names[i])
     interv_2_impact_temp = st.experimental_data_editor(interv_2_impact_temp, key=f'interv_2_impact{i + 1}')
     interv_2_impact_list.append(interv_2_impact_temp)
+
 interv_2_impact_result_list = []
 for i in range(no_scen):
     # Add corresponding values from both dataframes
@@ -1199,11 +1213,27 @@ for i in range(no_scen):
             result.iloc[p, j] = max(min(value, 4), 0)
     interv_2_impact_result_list.append(result)
 
+## Preparation for charts
+scen_acr = ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8']
+scen_acr_temp = scen_acr[:no_scen]
+scen_acr_interv = [f'{s}a' for s in scen_acr_temp] + [f'{s}b: {interv_acr_1}' for s in scen_acr_temp] + [f'{s}c: {interv_acr_2}' for s in scen_acr_temp]
+scen_acr_interv.sort()
+
+## Colours + color scale for chart
+colours_int = ['#193f5a', '#45667b', '#8b9eab',
+               '#db666e', '#e1858b', '#ebb2b7',
+               '#eca83e', '#f1b964', '#f6d49e',
+               '#62548e', '#8177a5', '#afa9c5',
+               '#e18054', '#e79a76', '#f0bfa9',
+               '#c65a86', '#d37ba0', '#e2acc2',
+               '#344c79', '#596f95', '#97a5bb',
+               '#975792', '#ac79a8', '#cbaac8']
+color_scale = alt.Scale(domain=scen_acr_interv, range=colours_int)
+
 ## New modal shares
 # Intervention 1
 # Calculate kilometers per mode for each persona in scenario 1
 dist_mode_list_interv_1 = []
-
 for i in range(no_scen):
     dist_mode = interv_1_impact_result_list[i].copy()
     dist_mode = dist_mode.astype(float)
@@ -1225,18 +1255,44 @@ for i in range(no_scen):
     dist_mode = dist_mode[['PT', 'Car', 'MoD', 'MM', 'Bike', 'Walk']]
     dist_mode = dist_mode.mul(pers_chars['Distance (km)'], axis=0).round(1)
     dist_mode_list_interv_1.append(dist_mode)
+# Transform the dataframe to long format
+for i in range(no_scen):
+    dist_mode_interv_1 = dist_mode_list_interv_1[i]
+    dist_mode_interv_1 = dist_mode_interv_1.stack().reset_index()
+    dist_mode_interv_1.columns = ['persona', 'Mode', 'km']
+
+# Intervention 2
+dist_mode_list_interv_2 = []
+for i in range(no_scen):
+    dist_mode = interv_2_impact_result_list[i].copy()
+    dist_mode = dist_mode.astype(float)
+    dist_mode = dist_mode.div(dist_mode.sum(axis=1), axis=0)
+    dist_mode['PT'] = 0.8 * dist_mode['PT-MoD'] + 0.8 * dist_mode['PT-Bike'] + 0.8 * dist_mode['PT-Walk'] + \
+                      0.8 * dist_mode['PT-MM']
+    dist_mode['car_n'] = dist_mode['Car'] + 0.8 * dist_mode['Car-Walk']
+    dist_mode['MoD_n'] = dist_mode['MoD'] + 0.2 * dist_mode['PT-MoD'] + 0.8 * dist_mode['MoD-Walk'] + \
+                                                                          0.8 * dist_mode['MoD-MM']
+    dist_mode['MM_n'] = dist_mode['MM'] + 0.2 * dist_mode['PT-MM'] + 0.2 * dist_mode['MoD-MM']
+    dist_mode['Bike_n'] = dist_mode['Bike'] + 0.2 * dist_mode['PT-Bike']
+    dist_mode['Walk_n'] = dist_mode['Walk'] + 0.2 * dist_mode['PT-Walk'] + 0.2 * dist_mode['MoD-Walk'] + \
+                          0.2 * dist_mode['Car-Walk'] + 0.2 * dist_mode['MM-Walk']
+    dist_mode['Car'] = dist_mode['car_n']
+    dist_mode['MoD'] = dist_mode['MoD_n']
+    dist_mode['MM'] = dist_mode['MM_n']
+    dist_mode['Bike'] = dist_mode['Bike_n']
+    dist_mode['Walk'] = dist_mode['Walk_n']
+    dist_mode = dist_mode[['PT', 'Car', 'MoD', 'MM', 'Bike', 'Walk']]
+    dist_mode = dist_mode.mul(pers_chars['Distance (km)'], axis=0).round(1)
+    dist_mode_list_interv_2.append(dist_mode)
 
 # Transform the dataframe to long format
 for i in range(no_scen):
-    dist_mode = dist_mode_list_interv_1[i]
-    dist_mode = dist_mode.stack().reset_index()
-    dist_mode.columns = ['persona', 'Mode', 'km']
-
+    dist_mode_interv_2 = dist_mode_list_interv_2[i]
+    dist_mode_interv_2 = dist_mode_interv_2.stack().reset_index()
+    dist_mode_interv_2.columns = ['persona', 'Mode', 'km']
 
 ## New emissions
 # Intervention 1
-mods = ['PT','Car','MoD','MM','Bike','Walk']
-
 emis_ind_list = []
 for i in range(no_scen):
     emis_ind = dist_mode_list_interv_1[i].copy()
@@ -1245,14 +1301,36 @@ for i in range(no_scen):
     emis_ind[scen_names[i]] = emis_ind.sum(axis=1)
     emis_ind = emis_ind[[scen_names[i]]]
     emis_ind_list.append(emis_ind)
-    emis_ind_concat = pd.concat(emis_ind_list, ignore_index=False, join='outer')
-    emis_ind_concat = emis_ind_concat.groupby(level=0).sum()
-emis_ind_concat = emis_ind_concat.stack().reset_index()
-emis_ind_concat.columns = ['Persona', 'Scenario', 'CO2e']
+    emis_ind_concat_interv_1 = pd.concat(emis_ind_list, ignore_index=False, join='outer')
+    emis_ind_concat_interv_1 = emis_ind_concat_interv_1.groupby(level=0).sum()
+emis_ind_concat_interv_1 = emis_ind_concat_interv_1.stack().reset_index()
+emis_ind_concat_interv_1.columns = ['Persona', 'Scenario', 'CO2e']
+
+# Intervention 2
+emis_ind_list = []
+for i in range(no_scen):
+    emis_ind = dist_mode_list_interv_2[i].copy()
+    for mod in mods:
+        emis_ind[mod] = emis_ind[mod] * emissions_energy[mod][0]/1000
+    emis_ind[scen_names[i]] = emis_ind.sum(axis=1)
+    emis_ind = emis_ind[[scen_names[i]]]
+    emis_ind_list.append(emis_ind)
+    emis_ind_concat_interv_2 = pd.concat(emis_ind_list, ignore_index=False, join='outer')
+    emis_ind_concat_interv_2 = emis_ind_concat_interv_2.groupby(level=0).sum()
+emis_ind_concat_interv_2 = emis_ind_concat_interv_2.stack().reset_index()
+emis_ind_concat_interv_2.columns = ['Persona', 'Scenario', 'CO2e']
+
+# Dataframe preparation combining base and intervention scenarios
+emis_ind_concat['Scenario'] = emis_ind_concat['Scenario'].str[:2] + 'a'
+emis_ind_concat_interv_1['Scenario'] = emis_ind_concat_interv_1['Scenario'].str[:2] + f'b: {interv_acr_1}'
+emis_ind_concat_interv_2['Scenario'] = emis_ind_concat_interv_2['Scenario'].str[:2] + f'c: {interv_acr_2}'
+
+emis_ind_interv = pd.concat([emis_ind_concat, emis_ind_concat_interv_1, emis_ind_concat_interv_2])
+emis_ind_interv = emis_ind_interv.sort_values(by=['Persona','Scenario'])
+
 
 ## New energy calculation
 # Intervention 1
-
 ener_ind_list = []
 for i in range(no_scen):
     ener_ind = dist_mode_list_interv_1[i].copy()
@@ -1261,15 +1339,36 @@ for i in range(no_scen):
     ener_ind[scen_names[i]] = ener_ind.sum(axis=1)
     ener_ind = ener_ind[[scen_names[i]]]
     ener_ind_list.append(ener_ind)
-    ener_ind_concat = pd.concat(ener_ind_list, ignore_index=False, join='outer')
-    ener_ind_concat = ener_ind_concat.groupby(level=0).sum()
-ener_ind_concat = ener_ind_concat.stack().reset_index()
-ener_ind_concat.columns = ['Persona', 'Scenario', 'Energy']
+    ener_ind_concat_interv_1 = pd.concat(ener_ind_list, ignore_index=False, join='outer')
+    ener_ind_concat_interv_1 = ener_ind_concat_interv_1.groupby(level=0).sum()
+ener_ind_concat_interv_1 = ener_ind_concat_interv_1.stack().reset_index()
+ener_ind_concat_interv_1.columns = ['Persona', 'Scenario', 'Energy']
+# Intervention 2
+ener_ind_list = []
+for i in range(no_scen):
+    ener_ind = dist_mode_list_interv_2[i].copy()
+    for mod in mods:
+        ener_ind[mod] = ener_ind[mod] * emissions_energy[mod][1]
+    ener_ind[scen_names[i]] = ener_ind.sum(axis=1)
+    ener_ind = ener_ind[[scen_names[i]]]
+    ener_ind_list.append(ener_ind)
+    ener_ind_concat_interv_2 = pd.concat(ener_ind_list, ignore_index=False, join='outer')
+    ener_ind_concat_interv_2 = ener_ind_concat_interv_2.groupby(level=0).sum()
+ener_ind_concat_interv_2 = ener_ind_concat_interv_2.stack().reset_index()
+ener_ind_concat_interv_2.columns = ['Persona', 'Scenario', 'Energy']
+
+# Dataframe preparation combining base and intervention scenarios
+ener_ind_concat['Scenario'] = ener_ind_concat['Scenario'].str[:2] + 'a'
+ener_ind_concat_interv_1['Scenario'] = ener_ind_concat_interv_1['Scenario'].str[:2] + f'b: {interv_acr_1}'
+ener_ind_concat_interv_2['Scenario'] = ener_ind_concat_interv_2['Scenario'].str[:2] + f'c: {interv_acr_2}'
+
+ener_ind_interv = pd.concat([ener_ind_concat, ener_ind_concat_interv_1, ener_ind_concat_interv_2])
+ener_ind_interv = ener_ind_interv.sort_values(by=['Persona','Scenario'])
+
 
 ## New calories calculation
 # Intervention 1
 cal_ind_list = []
-
 for i in range(no_scen):
     dist_mode_list_cal = dist_mode_list_interv_1[i].copy()
     cal_ind = dist_mode_list_cal
@@ -1278,15 +1377,37 @@ for i in range(no_scen):
                                                                                      axis=0) * walk_calories_input),0)
     cal_ind = cal_ind[[scen_names[i]]]
     cal_ind_list.append(cal_ind)
-    cal_ind_concat = pd.concat(cal_ind_list, ignore_index=False, join='outer')
-    cal_ind_concat = cal_ind_concat.groupby(level=0).sum()
-cal_ind_concat = cal_ind_concat.stack().reset_index()
-cal_ind_concat.columns = ['Persona', 'Scenario', 'Calories']
+    cal_ind_concat_interv_1 = pd.concat(cal_ind_list, ignore_index=False, join='outer')
+    cal_ind_concat_interv_1 = cal_ind_concat_interv_1.groupby(level=0).sum()
+cal_ind_concat_interv_1 = cal_ind_concat_interv_1.stack().reset_index()
+cal_ind_concat_interv_1.columns = ['Persona', 'Scenario', 'Calories']
+# Intervention 2
+cal_ind_list = []
+for i in range(no_scen):
+    dist_mode_list_cal = dist_mode_list_interv_2[i].copy()
+    cal_ind = dist_mode_list_cal
+    cal_ind[scen_names[i]] = round((cal_ind['Bike'].multiply(pers_chars['Bodyweight (kg)'], axis=0) *
+                                    bike_calories_input) + (cal_ind['Walk'].multiply(pers_chars['Bodyweight (kg)'],
+                                                                                     axis=0) * walk_calories_input),0)
+    cal_ind = cal_ind[[scen_names[i]]]
+    cal_ind_list.append(cal_ind)
+    cal_ind_concat_interv_2 = pd.concat(cal_ind_list, ignore_index=False, join='outer')
+    cal_ind_concat_interv_2 = cal_ind_concat_interv_2.groupby(level=0).sum()
+cal_ind_concat_interv_2 = cal_ind_concat_interv_2.stack().reset_index()
+cal_ind_concat_interv_2.columns = ['Persona', 'Scenario', 'Calories']
+
+# Dataframe preparation combining base and intervention scenarios
+cal_ind_concat['Scenario'] = cal_ind_concat['Scenario'].str[:2] + 'a'
+cal_ind_concat_interv_1['Scenario'] = cal_ind_concat_interv_1['Scenario'].str[:2] + f'b: {interv_acr_1}'
+cal_ind_concat_interv_2['Scenario'] = cal_ind_concat_interv_2['Scenario'].str[:2] + f'c: {interv_acr_2}'
+
+cal_ind_interv = pd.concat([cal_ind_concat, cal_ind_concat_interv_1, cal_ind_concat_interv_2])
+cal_ind_interv = cal_ind_interv.sort_values(by=['Persona','Scenario'])
+
 
 ## New emissions with pop size
 # Intervention 1
 emis_group_list = []
-
 for i in range(no_scen):
     emis_group = emis_ind_list[i].copy()
     emis_group = emis_group[0:no_pers]
@@ -1294,15 +1415,36 @@ for i in range(no_scen):
     emis_group = round((emis_group.multiply(pers_weights, axis=0)) * no_people / 100000)
     emis_group = emis_group[[scen_names[i]]]
     emis_group_list.append(emis_group)
-    emis_group_concat = pd.concat(emis_group_list, ignore_index=False, join='outer')
-    emis_group_concat = emis_group_concat.groupby(level=0).sum()
-emis_group_concat = emis_group_concat.stack().reset_index()
-emis_group_concat.columns = ['Persona', 'Scenario', 'CO2e']
+    emis_group_concat_interv_1 = pd.concat(emis_group_list, ignore_index=False, join='outer')
+    emis_group_concat_interv_1 = emis_group_concat_interv_1.groupby(level=0).sum()
+emis_group_concat_interv_1 = emis_group_concat_interv_1.stack().reset_index()
+emis_group_concat_interv_1.columns = ['Persona', 'Scenario', 'CO2e']
+
+# Intervention 2
+emis_group_list = []
+for i in range(no_scen):
+    emis_group = emis_ind_list[i].copy()
+    emis_group = emis_group[0:no_pers]
+    # Divided by 100 for percentage of population, by 1000 for emissions in tons instead of kg
+    emis_group = round((emis_group.multiply(pers_weights, axis=0)) * no_people / 100000)
+    emis_group = emis_group[[scen_names[i]]]
+    emis_group_list.append(emis_group)
+    emis_group_concat_interv_2 = pd.concat(emis_group_list, ignore_index=False, join='outer')
+    emis_group_concat_interv_2 = emis_group_concat_interv_2.groupby(level=0).sum()
+emis_group_concat_interv_2 = emis_group_concat_interv_2.stack().reset_index()
+emis_group_concat_interv_2.columns = ['Persona', 'Scenario', 'CO2e']
+
+# Dataframe preparation combining base and intervention scenarios
+emis_group_concat['Scenario'] = emis_group_concat['Scenario'].str[:2] + 'a'
+emis_group_concat_interv_1['Scenario'] = emis_group_concat_interv_1['Scenario'].str[:2] + f'b: {interv_acr_1}'
+emis_group_concat_interv_2['Scenario'] = emis_group_concat_interv_2['Scenario'].str[:2] + f'c: {interv_acr_2}'
+
+emis_group_interv = pd.concat([emis_group_concat, emis_group_concat_interv_1, emis_group_concat_interv_2])
+emis_group_interv = emis_group_interv.sort_values(by=['Persona','Scenario'])
 
 ## New energy with pop size
 # Intervention 1
 ener_group_list = []
-
 for i in range(no_scen):
     ener_group = ener_ind_list[i].copy()
     ener_group = ener_group[0:no_pers]
@@ -1310,15 +1452,35 @@ for i in range(no_scen):
     ener_group = round((ener_group.multiply(pers_weights, axis=0)) * no_people / 100000)
     ener_group = ener_group[[scen_names[i]]]
     ener_group_list.append(ener_group)
-    ener_group_concat = pd.concat(ener_group_list, ignore_index=False, join='outer')
-    ener_group_concat = ener_group_concat.groupby(level=0).sum()
-ener_group_concat = ener_group_concat.stack().reset_index()
-ener_group_concat.columns = ['Persona', 'Scenario', 'Energy']
+    ener_group_concat_interv_1 = pd.concat(ener_group_list, ignore_index=False, join='outer')
+    ener_group_concat_interv_1 = ener_group_concat_interv_1.groupby(level=0).sum()
+ener_group_concat_interv_1 = ener_group_concat_interv_1.stack().reset_index()
+ener_group_concat_interv_1.columns = ['Persona', 'Scenario', 'Energy']
+# Intervention 2
+ener_group_list = []
+for i in range(no_scen):
+    ener_group = ener_ind_list[i].copy()
+    ener_group = ener_group[0:no_pers]
+    # Divided by 100 for percentage of population, by 1000 for energy in giga joule
+    ener_group = round((ener_group.multiply(pers_weights, axis=0)) * no_people / 100000)
+    ener_group = ener_group[[scen_names[i]]]
+    ener_group_list.append(ener_group)
+    ener_group_concat_interv_2 = pd.concat(ener_group_list, ignore_index=False, join='outer')
+    ener_group_concat_interv_2 = ener_group_concat_interv_2.groupby(level=0).sum()
+ener_group_concat_interv_2 = ener_group_concat_interv_2.stack().reset_index()
+ener_group_concat_interv_2.columns = ['Persona', 'Scenario', 'Energy']
+
+# Dataframe preparation combining base and intervention scenarios
+ener_group_concat['Scenario'] = ener_group_concat['Scenario'].str[:2] + 'a'
+ener_group_concat_interv_1['Scenario'] = ener_group_concat_interv_1['Scenario'].str[:2] + f'b: {interv_acr_1}'
+ener_group_concat_interv_2['Scenario'] = ener_group_concat_interv_2['Scenario'].str[:2] + f'c: {interv_acr_2}'
+
+ener_group_interv = pd.concat([ener_group_concat, ener_group_concat_interv_1, ener_group_concat_interv_2])
+ener_group_interv = ener_group_interv.sort_values(by=['Persona','Scenario'])
 
 ## New calories with pop size
 # Intervention 1
 cal_group_list = []
-
 for i in range(no_scen):
     cal_group = cal_ind_list[i].copy()
     cal_group = cal_group[0:no_pers]
@@ -1326,288 +1488,104 @@ for i in range(no_scen):
     cal_group = round((cal_group.multiply(pers_weights, axis=0)) * no_people / 100000)
     cal_group = cal_group[[scen_names[i]]]
     cal_group_list.append(cal_group)
-    cal_group_concat = pd.concat(cal_group_list, ignore_index=False, join='outer')
-    cal_group_concat = cal_group_concat.groupby(level=0).sum()
-cal_group_concat = cal_group_concat.stack().reset_index()
-cal_group_concat.columns = ['Persona', 'Scenario', 'Calories']
+    cal_group_concat_interv_1 = pd.concat(cal_group_list, ignore_index=False, join='outer')
+    cal_group_concat_interv_1 = cal_group_concat_interv_1.groupby(level=0).sum()
+cal_group_concat_interv_1 = cal_group_concat_interv_1.stack().reset_index()
+cal_group_concat_interv_1.columns = ['Persona', 'Scenario', 'Calories']
+# Intervention 2
+cal_group_list = []
+for i in range(no_scen):
+    cal_group = cal_ind_list[i].copy()
+    cal_group = cal_group[0:no_pers]
+    # Divided by 100 for percentage of population and 1000 for pizza
+    cal_group = round((cal_group.multiply(pers_weights, axis=0)) * no_people / 100000)
+    cal_group = cal_group[[scen_names[i]]]
+    cal_group_list.append(cal_group)
+    cal_group_concat_interv_2 = pd.concat(cal_group_list, ignore_index=False, join='outer')
+    cal_group_concat_interv_2 = cal_group_concat_interv_2.groupby(level=0).sum()
+cal_group_concat_interv_2 = cal_group_concat_interv_2.stack().reset_index()
+cal_group_concat_interv_2.columns = ['Persona', 'Scenario', 'Calories']
+
+# Dataframe preparation combining base and intervention scenarios
+cal_group_concat['Scenario'] = cal_group_concat['Scenario'].str[:2] + 'a'
+cal_group_concat_interv_1['Scenario'] = cal_group_concat_interv_1['Scenario'].str[:2] + f'b: {interv_acr_1}'
+cal_group_concat_interv_2['Scenario'] = cal_group_concat_interv_2['Scenario'].str[:2] + f'c: {interv_acr_2}'
+
+cal_group_interv = pd.concat([cal_group_concat, cal_group_concat_interv_1, cal_group_concat_interv_2])
+cal_group_interv = cal_group_interv.sort_values(by=['Persona','Scenario'])
 
 
 ### Graphs
 
-## Step 10a: Calculating impacts after interventions
-st.header('Step 10a: Modal share with interventions')
-
-# Define the chart
-chart_dist_mode = alt.Chart(dist_mode).mark_bar().encode(
-    x=alt.X('Mode:N', sort=["PT", "Car", "MoD", "MM", "Bike", "Walk"],
-            axis=alt.Axis(title=None, labelAngle=0, labelPadding=5, labelFlush=False, tickCount=4, labels=False)),
-    y=alt.Y('km:Q', axis=alt.Axis(title='Kilometres')),
-    color=alt.Color('Mode:N',
-                    scale=alt.Scale(domain=["PT", "Car", "MoD", "MM", "Bike", "Walk"],
-                                    range=['#d35400', '#2980b9', '#2c3e50', '#c0392b', '#27ae60', '#8e44ad'])),
-    column=alt.Column('persona:N', header=alt.Header(labelOrient='bottom', title=None))
-).properties(
-    width=160,
-    title={
-        'text': 'With intervention: Modal share in km for ' + scen_names[i],
-        'fontSize': 16,
-        'fontWeight': 'bold',
-        'anchor': 'start',
-        'offset': 20}
-).configure_axis(
-    grid=False,
-    labelFontSize=12,
-    titleFontSize=14
-)
-
-# Render the chart using Streamlit
-st.altair_chart(chart_dist_mode, use_container_width=False)
-
-st.header('Step 10b: Impacts per persona group with interventions')
+st.header('Step 10a: Impacts per persona group with interventions')
+st.write('The following charts show for each persona and scenario the emissions, energy demand, and calories burned.'
+         f'Each time, the base scenario is compared to the interventions {interv_name_1} and {interv_name_2}.')
 st.subheader('CO2e emissions')
-
-
-# Sample data
-product_types = ['Product A', 'Product B', 'Product C']
-years = ['2022', '2023', '2024', '2025']
-data = np.random.randint(100, size=(4, 3))
-
-# Create a DataFrame from the data
-df = pd.DataFrame(data, index=years, columns=product_types)
-
-# Melt the DataFrame to long format
-df_melted = df.reset_index().melt('index', var_name='Product', value_name='Sales')
-
-# Configure Altair
-chart = alt.Chart(df_melted).mark_bar().encode(
-    x='index',
-    y='Sales',
-    color='Product',
-    column='Product'
-).properties(
-    width=150,
-    height=300,
-    title='Product Sales by Year'
-)
-
-# Show the chart using Streamlit
-st.altair_chart(chart, use_container_width=True)
-
-# Sample data
-product_types = ['Product A', 'Product B', 'Product C']
-years = ['2022', '2023', '2024', '2025']
-data = np.random.randint(100, size=(4, 3))
-
-# Create a DataFrame from the data
-df = pd.DataFrame(data, index=years, columns=product_types)
-
-# Set the plot size
-fig, ax = plt.subplots(figsize=(8, 6))
-
-# Set the custom style
-plt.style.use('ggplot')
-
-# Plot the bar chart
-df.plot.bar(ax=ax, edgecolor='none', legend=False)
-
-# Set labels and title
-ax.set_xlabel('Years', fontsize=12)
-ax.set_ylabel('Sales', fontsize=12)
-ax.set_title('Product Sales by Year', fontsize=14)
-
-# Customize x-axis tick labels
-ax.tick_params(axis='x', rotation=0, labelsize=10)
-
-# Remove y-axis and spines
-ax.yaxis.set_visible(False)
-ax.spines['left'].set_visible(False)
-ax.spines['right'].set_visible(False)
-ax.spines['top'].set_visible(False)
-
-# Set font family
-plt.rcParams['font.family'] = 'Open Sans'
-
-# Show the plot using Streamlit
-st.pyplot(fig)
-
-
-st.write(emis_ind_concat)
-
-# Define the chart
-chart_emis_ind_interv_1 = alt.Chart(emis_ind_concat).mark_bar().encode(
-    x=alt.X('Scenario:N', sort=[],
-            axis=alt.Axis(title=None, labelAngle=0, labelPadding=5, labelFlush=False, tickCount=4, labels=False)),
-    y=alt.Y('CO2e:Q', axis=alt.Axis(title='CO2 equivalent in kg')),
-    color=alt.Color('Scenario:N',
-                    scale=alt.Scale(domain=scen_names,
-                                    range=['#d35400', '#2980b9', '#2c3e50', '#c0392b', '#27ae60', '#8e44ad'])),
-    column=alt.Column('Persona:N', header=alt.Header(labelOrient='bottom', title=None))
-).properties(
-    width=160,
-    title={
-        'text': 'With intervention: Daily emissions in CO2e per persona across scenarios',
-        'fontSize': 16,
-        'fontWeight': 'bold',
-        'anchor': 'start',
-        'offset': 20}
-).configure_axis(
-    grid=False,
-    labelFontSize=12,
-    titleFontSize=14
-)
-
-# Render the chart using Streamlit
-st.altair_chart(chart_emis_ind, use_container_width=False)
-st.altair_chart(chart_emis_ind_interv_1, use_container_width=False)
+# Chart for emissions comparison
+chart_emis_ind_interv = alt.Chart(emis_ind_interv).mark_bar().encode(
+    x=alt.X('Scenario', title='Scenario'),
+    y=alt.Y('CO2e', title='CO2e in kg per day'),
+    color=alt.Color('Scenario', scale=color_scale),
+    column='Persona'
+).properties(width=600 / no_pers)
+chart_emis_ind_interv
 
 st.subheader('Energy demand')
-
-# Define the chart
-chart_ener_ind_interv_1 = alt.Chart(ener_ind_concat).mark_bar().encode(
-    x=alt.X('Scenario:N', sort=[],
-            axis=alt.Axis(title=None, labelAngle=0, labelPadding=5, labelFlush=False, tickCount=4, labels=False)),
-    y=alt.Y('Energy:Q', axis=alt.Axis(title='Energy in mega joule')),
-    color=alt.Color('Scenario:N',
-                    scale=alt.Scale(domain=scen_names,
-                                    range=['#d35400', '#2980b9', '#2c3e50', '#c0392b', '#27ae60', '#8e44ad'])),
-    column=alt.Column('Persona:N', header=alt.Header(labelOrient='bottom', title=None))
-).properties(
-    width=160,
-    title={
-        'text': 'With intervention: Daily energy demand in MJ per persona across scenarios',
-        'fontSize': 16,
-        'fontWeight': 'bold',
-        'anchor': 'start',
-        'offset': 20}
-).configure_axis(
-    grid=False,
-    labelFontSize=12,
-    titleFontSize=14
-)
-
-# Render the chart using Streamlit
-st.altair_chart(chart_ener_ind, use_container_width=False)
-st.altair_chart(chart_ener_ind_interv_1, use_container_width=False)
+# Chart for energy comparison
+chart_ener_ind_interv = alt.Chart(ener_ind_interv).mark_bar().encode(
+    x=alt.X('Scenario', title='Scenario'),
+    y=alt.Y('Energy', title='Energy demand in MJ per day'),
+    color=alt.Color('Scenario', scale=color_scale),
+    column='Persona'
+).properties(width=600 / no_pers)
+chart_ener_ind_interv
 
 st.subheader('Calories burned')
+# Chart for energy comparison
+chart_cal_ind_interv = alt.Chart(cal_ind_interv).mark_bar().encode(
+    x=alt.X('Scenario', title='Scenario'),
+    y=alt.Y('Calories', title='Calories burned per day'),
+    color=alt.Color('Scenario', scale=color_scale),
+    column='Persona'
+).properties(width=600 / no_pers)
+chart_cal_ind_interv
 
-# Define the chart
-chart_cal_ind_interv_1 = alt.Chart(cal_ind_concat).mark_bar().encode(
-    x=alt.X('Scenario:N', sort=[],
-            axis=alt.Axis(title=None, labelAngle=0, labelPadding=5, labelFlush=False, tickCount=4, labels=False)),
-    y=alt.Y('Calories:Q', axis=alt.Axis(title='Calories burned during commute')),
-    color=alt.Color('Scenario:N',
-                    scale=alt.Scale(domain=scen_names,
-                                    range=['#d35400', '#2980b9', '#2c3e50', '#c0392b', '#27ae60', '#8e44ad'])),
-    column=alt.Column('Persona:N', header=alt.Header(labelOrient='bottom', title=None))
-).properties(
-    width=160,
-    title={
-        'text': 'With intervention: Daily calories burned per persona across scenarios',
-        'fontSize': 16,
-        'fontWeight': 'bold',
-        'anchor': 'start',
-        'offset': 20}
-).configure_axis(
-    grid=False,
-    labelFontSize=12,
-    titleFontSize=14
-)
-
-# Render the chart using Streamlit
-st.altair_chart(chart_cal_ind, use_container_width=False)
-st.altair_chart(chart_cal_ind_interv_1, use_container_width=False)
-
-st.header('Step 10c: Impacts considering population size and persona distribution with interventions')
+st.header('Step 10b: Impacts considering population size and persona distribution with interventions')
+st.write('The following charts show for each scenario the emissions, energy demand, and calories burned. '
+         'Compared to the previous charts, the numbers are scaled by the population size and the persona weights. '
+         f'Each time, the base scenario is compared to the interventions {interv_name_1} and {interv_name_2}.')
 st.subheader('Emissions')
-
-# Define the chart
-chart_emis_group_interv_1 = alt.Chart(emis_group_concat).mark_bar().encode(
-    x=alt.X('Scenario:N', sort=[],
-            axis=alt.Axis(title=None, labelAngle=0, labelPadding=5, labelFlush=False, tickCount=4, labels=False)),
-    y=alt.Y('CO2e:Q', axis=alt.Axis(title='CO2e per group and scenario in tons (t)')),
-    color=alt.Color('Scenario:N',
-                    scale=alt.Scale(domain=scen_names,
-                                    range=['#d35400', '#2980b9', '#2c3e50', '#c0392b', '#27ae60', '#8e44ad'])),
-    column=alt.Column('Persona:N', header=alt.Header(labelOrient='bottom', title=None))
-).properties(
-    width=160,
-    title={
-        'text': 'With intervention: CO2 equivalent in tons for aggregated persona group',
-        'fontSize': 16,
-        'fontWeight': 'bold',
-        'anchor': 'start',
-        'offset': 20}
-).configure_axis(
-    grid=False,
-    labelFontSize=12,
-    titleFontSize=14
-)
-
-# Render the chart using Streamlit
-st.altair_chart(chart_emis_group, use_container_width=False)
-st.altair_chart(chart_emis_group_interv_1, use_container_width=False)
+# Chart for aggregated emissions comparison
+chart_emis_group_interv = alt.Chart(emis_group_interv).mark_bar().encode(
+    x=alt.X('Scenario', title='Scenario'),
+    y=alt.Y('CO2e', title='CO2e per group and scenario in tons (t)'),
+    color=alt.Color('Scenario', scale=color_scale),
+    column='Persona'
+).properties(width=600 / no_pers)
+chart_emis_group_interv
 
 st.subheader('Energy demand')
-
-# Define the chart
-chart_ener_group_interv_1 = alt.Chart(ener_group_concat).mark_bar().encode(
-    x=alt.X('Scenario:N', sort=[],
-            axis=alt.Axis(title=None, labelAngle=0, labelPadding=5, labelFlush=False, tickCount=4, labels=False)),
-    y=alt.Y('Energy:Q', axis=alt.Axis(title='Energy demand per group and scenario in tons (t)')),
-    color=alt.Color('Scenario:N',
-                    scale=alt.Scale(domain=scen_names,
-                                    range=['#d35400', '#2980b9', '#2c3e50', '#c0392b', '#27ae60', '#8e44ad'])),
-    column=alt.Column('Persona:N', header=alt.Header(labelOrient='bottom', title=None))
-).properties(
-    width=160,
-    title={
-        'text': 'With intervention: Energy demand in giga joule (MJ*1000)',
-        'fontSize': 16,
-        'fontWeight': 'bold',
-        'anchor': 'start',
-        'offset': 20}
-).configure_axis(
-    grid=False,
-    labelFontSize=12,
-    titleFontSize=14
-)
-
-# Render the chart using Streamlit
-st.altair_chart(chart_ener_group, use_container_width=False)
-st.altair_chart(chart_ener_group_interv_1, use_container_width=False)
+# Chart for aggregated energy comparison
+chart_ener_group_interv = alt.Chart(ener_group_interv).mark_bar().encode(
+    x=alt.X('Scenario', title='Scenario'),
+    y=alt.Y('Energy', title='Energy demand per group and scenario in Gigajoule (MJ*1000)'),
+    color=alt.Color('Scenario', scale=color_scale),
+    column='Persona'
+).properties(width=600 / no_pers)
+chart_ener_group_interv
 
 st.subheader('Calories burned')
-
-# Define the chart
-chart_cal_group_interv_1 = alt.Chart(cal_group_concat).mark_bar().encode(
-    x=alt.X('Scenario:N', sort=[],
-            axis=alt.Axis(title=None, labelAngle=0, labelPadding=5, labelFlush=False, tickCount=4, labels=False)),
-    y=alt.Y('Calories:Q', axis=alt.Axis(title='Calories burned per group and scenario')),
-    color=alt.Color('Scenario:N',
-                    scale=alt.Scale(domain=scen_names,
-                                    range=['#d35400', '#2980b9', '#2c3e50', '#c0392b', '#27ae60', '#8e44ad'])),
-    column=alt.Column('Persona:N', header=alt.Header(labelOrient='bottom', title=None))
-).properties(
-    width=160,
-    title={
-        'text': 'With intervention: Pizzas burned per persona group (1 pizza = 1000 cal)',
-        'fontSize': 16,
-        'fontWeight': 'bold',
-        'anchor': 'start',
-        'offset': 20}
-).configure_axis(
-    grid=False,
-    labelFontSize=12,
-    titleFontSize=14
-)
-
-# Render the chart using Streamlit
-st.altair_chart(chart_cal_group, use_container_width=False)
-st.altair_chart(chart_cal_group_interv_1, use_container_width=False)
+# Chart for aggregated calories comparison
+chart_cal_group_interv = alt.Chart(cal_group_interv).mark_bar().encode(
+    x=alt.X('Scenario', title='Scenario'),
+    y=alt.Y('Calories', title='Pizzas burned per persona group (1 pizza = 1000 cal)'),
+    color=alt.Color('Scenario', scale=color_scale),
+    column='Persona'
+).properties(width=600 / no_pers)
+chart_cal_group_interv
 
 # Last step, written summary
-st.header('Step 10d: Aggregated impacts considering scenario likelihood with interventions')
+st.header('Step 10c: Aggregated impacts considering scenario likelihood with interventions')
 emis_aggr = emis_group_concat.groupby('Scenario').sum().copy()
 emis_aggr = round((emis_aggr.multiply(scen_likelihood_list, axis=0)) / 100)
 indic_aggr_interv_1 = emis_aggr.sum()
@@ -1658,10 +1636,9 @@ if selected_option == "Process & Glossary":
        - [Step 8c: Aggregated impacts considering scenario likelihood](#step-8c-aggregated-impacts-considering-scenario-likelihood)
        - [Step 9a: Defining potential interventions](#step-9a-defining-potential-interventions)
        - [Step 9b: Estimating impact of interventions](#step-9b-estimating-impact-of-interventions)
-       - [Step 10a: Modal share with interventions](#step-10a-modal-share-with-interventions)
-       - [Step 10b: Impacts per persona group with interventions](#step-10b-impacts-per-persona-group-with-interventions)
-       - [Step 10c: Impacts considering population size and persona distribution with interventions](#step-10c-impacts-considering-population-size-and-persona-distribution-with-interventions)
-       - [Step 10d: Aggregated impacts considering scenario likelihood with interventions](#step-10d-aggregated-impacts-considering-scenario-likelihood-with-interventions)
+       - [Step 10a: Impacts per persona group with interventions](#step-10a-impacts-per-persona-group-with-interventions)
+       - [Step 10b: Impacts considering population size and persona distribution with interventions](#step-10b-impacts-considering-population-size-and-persona-distribution-with-interventions)
+       - [Step 10c: Aggregated impacts considering scenario likelihood with interventions](#step-10c-aggregated-impacts-considering-scenario-likelihood-with-interventions)
        ''', unsafe_allow_html=True)
        st.header("Glossary")
        st.write("Scenarios are distinct alternative futures that help considering uncertain future developments.")
