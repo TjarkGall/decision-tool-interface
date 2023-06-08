@@ -198,7 +198,7 @@ for i in range(no_pers):
         default_desc = ''
     pers_name.append(st.text_input(f'Name of persona {i + 1}:', value=default_name))
     pers_desc.append(
-        st.text_area(f'Description of persona {i + 1} (max. 250 char.):', value=default_desc, max_chars=250))
+        st.text_area(f'Description of persona {i + 1} (max. 250 char.):', value=default_desc, max_chars=450))
 
 # Persona characteristics
 st.subheader('Persona characteristics')
@@ -206,7 +206,7 @@ st.write('Set the number of home-work-home kilometres for a normal day for each 
          'kilograms. These values are the basis for the later impact assessment of emissions, energy use, and calories burnt.')
 
 # Define default values for all personas
-default_values = {'Jacqueline': [60, 57], 'Thierry': [40, 84], 'Adrian': [10, 72], 'Rui': [4, 53]}
+default_values = {pers_name[0]: [60, 57], pers_name[1]: [40, 84], pers_name[2]: [10, 72], pers_name[3]: [4, 53]}
 for i in range(4, no_pers):
     default_values[pers_name[i]] = [0, 0]
 default_values = dict(islice(default_values.items(), no_pers))
