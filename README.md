@@ -17,9 +17,43 @@ The Urban Mobility Decision Support Tool is an online application built with Str
 
 ## Usage
 
-1. Work with online version: https://www.urban-framework.com/scenario-tool
+You have two options to use it. Either, you can use an online version here: https://www.urban-framework.com/scenario-tool or create a local copy as described below.
 
 1. Clone the repository:
 
 ```shell
 git clone https://github.com/your-username/urban-mobility-decision-support-tool.git
+```
+
+## 2. Install the required dependencies:
+
+```shell
+pip install -r requirements.txt
+```
+```shell
+streamlit run app.py
+```
+Open the application in your browser at http://localhost:8501.
+
+## Data and Scenarios
+
+The tool relies on input data for urban mobility systems, interventions, scenarios, and personas. The version is filled with sample data but you can replace all components according to your needs.
+
+## Contributing
+
+Contributions are welcome! If you have any suggestions, bug reports, or feature requests, please open an issue or submit a pull request.
+
+## License
+
+This project is licensed under the MIT License.
+
+## Acknowledgments
+
+This project was developed as part of XYZ University's research initiative on sustainable urban mobility. We would like to acknowledge the support and contributions from the research team and funding agencies.
+
+## Contact
+
+For questions or inquiries, please contact:
+
+Tjark Gall
+Email: tjark.gall@urban-framework.com
