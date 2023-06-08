@@ -208,7 +208,7 @@ st.write('Set the number of home-work-home kilometres for a normal day for each 
 # Define default values for all personas
 default_values = {'Jacqueline': [60, 57], 'Thierry': [40, 84], 'Adrian': [10, 72], 'Rui': [4, 53]}
 for i in range(4, no_pers):
-    default_values[f'Persona {i + 1}'] = [0, 0]
+    default_values[pers_name[i]] = [0, 0]
 default_values = dict(islice(default_values.items(), no_pers))
 
 # Create the DataFrame with the default values
