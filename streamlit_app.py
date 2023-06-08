@@ -1,9 +1,8 @@
+# Load required packages
 import altair as alt
-from altair import Chart, X, Y, Color, Scale, Column
-import numpy as np
 import pandas as pd
-from PIL import Image
 import streamlit as st
+from PIL import Image
 from itertools import islice
 
 # Introduction
@@ -13,7 +12,7 @@ st.write('This is a prototype of a tool to compare impacts of potential interven
          'future scenarios. Standard values are defined as reference values. This '
          'application compares the impact of an intervention (e.g., policy/technology) for different '
          'persona groups and across 2030 scenarios, measured by CO2 equivalent (CO2e) emissions, energy demand in '
-         'mega joule (MJ), and calories burned.')
+         'megajoules (MJ), and calories burned.')
 st.write('As a prototype, some of the input fields are not as intuitive as they should be in a final version. We hope '
          'that it is clear nevertheless and are looking forward to any feedback.')
 
@@ -24,14 +23,14 @@ st.write('You can reset the form by refreshing the website. No values or uploade
 st.write('The concept was developed as part of the Institute Pascal research programme 2022 and has been continued as '
          'part of the work of the <a href="http://www.chaire-anthropolis.fr/">Anthropolis Chair.</a>',
          unsafe_allow_html=True)
-st.subheader('Question?')
+st.subheader('Questions?')
 st.write('Contact Tjark Gall | tjark.gall@irt-systemx.fr')
 
 # Anthropolis logo
 image = Image.open('data/images/Anthropolis_logo_colour.png')
 st.image(image, use_column_width=True)
 
-# Step 2: Defining Future Scenarios
+# Defining Future Scenarios
 st.header('Step 1: Defining Future Scenarios')
 
 # Number of scenarios
@@ -243,7 +242,7 @@ for i in range(no_pers):
     st.write(pers_desc[i])
     st.write(pers_chars.loc[pers_name[i]])
 
-# Step 3: Likelihood of scenarios
+# Likelihood of scenarios
 st.header('Step 3: Set likelihood of scenarios')
 
 # Scenario description
@@ -506,7 +505,7 @@ for i in range(no_scen):
     mode_pref = st.experimental_data_editor(mode_pref, key=f'mode_pref{i + 1}')
     mode_pref_list.append(mode_pref)
 
-# Step 7
+# Set values for impact assessment
 st.header('Step 7: Set values for impact assessment')
 
 # Create the input fields for individual values
@@ -727,7 +726,7 @@ chart_cal_ind = alt.Chart(cal_ind_concat).mark_bar().encode(
 # Render the chart using Streamlit
 st.altair_chart(chart_cal_ind, use_container_width=False)
 
-# Step 9
+# Impacts considering population size and persona distribution
 st.header('Step 8b: Impacts considering population size and persona distribution')
 st.write('In this section, you can see the impacts by scenario for each persona. Compared to above, the values are '
          f'multiplied by the set population size of {no_people} and the set weight for each persona.')
@@ -854,7 +853,7 @@ chart_cal_group = alt.Chart(cal_group_concat).mark_bar().encode(
 # Render the chart using Streamlit
 st.altair_chart(chart_cal_group, use_container_width=False)
 
-# Step 10
+# Aggregated impacts considering scenario likelihood
 st.header('Step 8c: Aggregated impacts considering scenario likelihood')
 
 emis_aggr = emis_group_concat.groupby('Scenario').sum().copy()
@@ -873,13 +872,13 @@ cal_aggr = round((cal_aggr.multiply(scen_likelihood_list, axis=0)) / 100)
 cal_aggr = cal_aggr.sum()
 indic_aggr = indic_aggr.append(cal_aggr, ignore_index=False)
 
-st.write('Building on the earlier established likelihood of each scenario, we can anticipate a daily'
-         ' footprint of ' + str(indic_aggr[0]) + ' tons CO2 equivalent. This makes it '+ str(indic_aggr[0] * 365) +
-         ' tons per year. Further, we assume an energy demand of '  + str(indic_aggr[1]) + ' giga joule per day and ' \
-         'about ' + str(indic_aggr[1] * 365) + ' giga joules per year. On the positive side, the commutes help to burn '
-         'a total of '+ str(indic_aggr[2]) + ' calories per day or ' + str(indic_aggr[1] * 365) + ' per year.')
+st.write('Building on the earlier established likelihood of each scenario, we can anticipate a daily '
+         f'footprint of __{round(indic_aggr[0])} tons CO2 equivalent__. This makes it about __{round(indic_aggr[0] * 0.365)} '
+         f'kilotons__ per year. Further, we assume an energy demand of __{round(indic_aggr[1])} gigajoules per day__ and '
+         f'about __{round(indic_aggr[1] * 0.365)} terajoules per year__. On the positive side, the commutes help to burn '
+         f'a total of __{round(indic_aggr[2])} pizzas (=1000 calories) per day__ or __{round(indic_aggr[1] * 365)}__ per year.')
 
-# Step 9: Defining Potential Interventions
+# Defining potential interventions
 st.header('Step 9a: Defining potential interventions')
 st.write('You can use this tool to compare the impact of two interventions. For inspiration, have a look at our '
          '<a href="https://urban-mobility-futures.notion.site/3b4cb3e4fccd48a38cda6149a0d6ffa1?v=8ce1115a24e7436f8c31bdd58a3c74ef">Urban Mobility Solution Database.</a>', unsafe_allow_html=True)
@@ -899,13 +898,13 @@ st.text_input(f'Intervention 2 acronym:', value=interv_acr_2, max_chars=5, key='
 st.text_area(f'Intervention 2 description (max. 250 characters):', value=interv_desc_2, max_chars=250, key='intervention-description-2')
 
 
-# Step 9b: Intervention impacts
+# Estimating impact of interventions
 st.header('Step 9b: Estimating impact of interventions')
 st.write('Set the assumed impact the two interventions might have across scenarios and personas. The values go from -2 to +2.'
          ' -2 means that after the intervention, a certain mode is much less likely. 0 means nothing changes. +2'
          ' means that the likelihood to use a certain mode increases strongly.')
 
-### Input collection for intervention 1
+# Input collection for intervention 1
 st.subheader(f'Impact of intervention 1: {interv_name_1}')
 interv_1_impact = {
         0:{
@@ -1056,7 +1055,7 @@ for i in range(no_scen):
             result.iloc[p, j] = max(min(value, 4), 0)
     interv_1_impact_result_list.append(result)
 
-### Input collection for intervention 2
+# Input collection for intervention 2
 st.subheader(f'Impact of intervention 2: {interv_name_2}')
 interv_2_impact = {
         0:{
@@ -1182,7 +1181,6 @@ interv_2_impact = {
         }
 interv_2_impact_list = []
 
-
 for i in range(no_scen):
     # Create editabe dataframe for inputs on emissions and energy demand per passenger kilometer
     interv_2_impact_temp = interv_2_impact[i]
@@ -1210,13 +1208,13 @@ for i in range(no_scen):
             result.iloc[p, j] = max(min(value, 4), 0)
     interv_2_impact_result_list.append(result)
 
-## Preparation for charts
+# Preparation for charts
 scen_acr = ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8']
 scen_acr_temp = scen_acr[:no_scen]
 scen_acr_interv = [f'{s}a' for s in scen_acr_temp] + [f'{s}b: {interv_acr_1}' for s in scen_acr_temp] + [f'{s}c: {interv_acr_2}' for s in scen_acr_temp]
 scen_acr_interv.sort()
 
-## Colours + color scale for chart
+# Colours + color scale for chart
 colours_int = ['#193f5a', '#45667b', '#8b9eab',
                '#db666e', '#e1858b', '#ebb2b7',
                '#eca83e', '#f1b964', '#f6d49e',
@@ -1227,7 +1225,7 @@ colours_int = ['#193f5a', '#45667b', '#8b9eab',
                '#975792', '#ac79a8', '#cbaac8']
 color_scale = alt.Scale(domain=scen_acr_interv, range=colours_int)
 
-## New modal shares
+# New modal shares
 # Intervention 1
 # Calculate kilometers per mode for each persona in scenario 1
 dist_mode_list_interv_1 = []
@@ -1288,31 +1286,31 @@ for i in range(no_scen):
     dist_mode_interv_2 = dist_mode_interv_2.stack().reset_index()
     dist_mode_interv_2.columns = ['persona', 'Mode', 'km']
 
-## New emissions
+# New emissions
 # Intervention 1
-emis_ind_list = []
+emis_ind_list_interv_1 = []
 for i in range(no_scen):
     emis_ind = dist_mode_list_interv_1[i].copy()
     for mod in mods:
         emis_ind[mod] = emis_ind[mod] * emissions_energy[mod][0]/1000
     emis_ind[scen_names[i]] = emis_ind.sum(axis=1)
     emis_ind = emis_ind[[scen_names[i]]]
-    emis_ind_list.append(emis_ind)
-    emis_ind_concat_interv_1 = pd.concat(emis_ind_list, ignore_index=False, join='outer')
+    emis_ind_list_interv_1.append(emis_ind)
+    emis_ind_concat_interv_1 = pd.concat(emis_ind_list_interv_1, ignore_index=False, join='outer')
     emis_ind_concat_interv_1 = emis_ind_concat_interv_1.groupby(level=0).sum()
 emis_ind_concat_interv_1 = emis_ind_concat_interv_1.stack().reset_index()
 emis_ind_concat_interv_1.columns = ['Persona', 'Scenario', 'CO2e']
 
 # Intervention 2
-emis_ind_list = []
+emis_ind_list_interv_2 = []
 for i in range(no_scen):
     emis_ind = dist_mode_list_interv_2[i].copy()
     for mod in mods:
         emis_ind[mod] = emis_ind[mod] * emissions_energy[mod][0]/1000
     emis_ind[scen_names[i]] = emis_ind.sum(axis=1)
     emis_ind = emis_ind[[scen_names[i]]]
-    emis_ind_list.append(emis_ind)
-    emis_ind_concat_interv_2 = pd.concat(emis_ind_list, ignore_index=False, join='outer')
+    emis_ind_list_interv_2.append(emis_ind)
+    emis_ind_concat_interv_2 = pd.concat(emis_ind_list_interv_2, ignore_index=False, join='outer')
     emis_ind_concat_interv_2 = emis_ind_concat_interv_2.groupby(level=0).sum()
 emis_ind_concat_interv_2 = emis_ind_concat_interv_2.stack().reset_index()
 emis_ind_concat_interv_2.columns = ['Persona', 'Scenario', 'CO2e']
@@ -1325,31 +1323,30 @@ emis_ind_concat_interv_2['Scenario'] = emis_ind_concat_interv_2['Scenario'].str[
 emis_ind_interv = pd.concat([emis_ind_concat, emis_ind_concat_interv_1, emis_ind_concat_interv_2])
 emis_ind_interv = emis_ind_interv.sort_values(by=['Persona','Scenario'])
 
-
-## New energy calculation
+# New energy calculation
 # Intervention 1
-ener_ind_list = []
+ener_ind_list_interv_1 = []
 for i in range(no_scen):
     ener_ind = dist_mode_list_interv_1[i].copy()
     for mod in mods:
         ener_ind[mod] = ener_ind[mod] * emissions_energy[mod][1]
     ener_ind[scen_names[i]] = ener_ind.sum(axis=1)
     ener_ind = ener_ind[[scen_names[i]]]
-    ener_ind_list.append(ener_ind)
-    ener_ind_concat_interv_1 = pd.concat(ener_ind_list, ignore_index=False, join='outer')
+    ener_ind_list_interv_1.append(ener_ind)
+    ener_ind_concat_interv_1 = pd.concat(ener_ind_list_interv_1, ignore_index=False, join='outer')
     ener_ind_concat_interv_1 = ener_ind_concat_interv_1.groupby(level=0).sum()
 ener_ind_concat_interv_1 = ener_ind_concat_interv_1.stack().reset_index()
 ener_ind_concat_interv_1.columns = ['Persona', 'Scenario', 'Energy']
 # Intervention 2
-ener_ind_list = []
+ener_ind_list_interv_2 = []
 for i in range(no_scen):
     ener_ind = dist_mode_list_interv_2[i].copy()
     for mod in mods:
         ener_ind[mod] = ener_ind[mod] * emissions_energy[mod][1]
     ener_ind[scen_names[i]] = ener_ind.sum(axis=1)
     ener_ind = ener_ind[[scen_names[i]]]
-    ener_ind_list.append(ener_ind)
-    ener_ind_concat_interv_2 = pd.concat(ener_ind_list, ignore_index=False, join='outer')
+    ener_ind_list_interv_2.append(ener_ind)
+    ener_ind_concat_interv_2 = pd.concat(ener_ind_list_interv_2, ignore_index=False, join='outer')
     ener_ind_concat_interv_2 = ener_ind_concat_interv_2.groupby(level=0).sum()
 ener_ind_concat_interv_2 = ener_ind_concat_interv_2.stack().reset_index()
 ener_ind_concat_interv_2.columns = ['Persona', 'Scenario', 'Energy']
@@ -1362,10 +1359,9 @@ ener_ind_concat_interv_2['Scenario'] = ener_ind_concat_interv_2['Scenario'].str[
 ener_ind_interv = pd.concat([ener_ind_concat, ener_ind_concat_interv_1, ener_ind_concat_interv_2])
 ener_ind_interv = ener_ind_interv.sort_values(by=['Persona','Scenario'])
 
-
-## New calories calculation
+# New calories calculation
 # Intervention 1
-cal_ind_list = []
+cal_ind_list_interv_1 = []
 for i in range(no_scen):
     dist_mode_list_cal = dist_mode_list_interv_1[i].copy()
     cal_ind = dist_mode_list_cal
@@ -1373,13 +1369,13 @@ for i in range(no_scen):
                                     bike_calories_input) + (cal_ind['Walk'].multiply(pers_chars['Bodyweight (kg)'],
                                                                                      axis=0) * walk_calories_input),0)
     cal_ind = cal_ind[[scen_names[i]]]
-    cal_ind_list.append(cal_ind)
-    cal_ind_concat_interv_1 = pd.concat(cal_ind_list, ignore_index=False, join='outer')
+    cal_ind_list_interv_1.append(cal_ind)
+    cal_ind_concat_interv_1 = pd.concat(cal_ind_list_interv_1, ignore_index=False, join='outer')
     cal_ind_concat_interv_1 = cal_ind_concat_interv_1.groupby(level=0).sum()
 cal_ind_concat_interv_1 = cal_ind_concat_interv_1.stack().reset_index()
 cal_ind_concat_interv_1.columns = ['Persona', 'Scenario', 'Calories']
 # Intervention 2
-cal_ind_list = []
+cal_ind_list_interv_2 = []
 for i in range(no_scen):
     dist_mode_list_cal = dist_mode_list_interv_2[i].copy()
     cal_ind = dist_mode_list_cal
@@ -1387,8 +1383,8 @@ for i in range(no_scen):
                                     bike_calories_input) + (cal_ind['Walk'].multiply(pers_chars['Bodyweight (kg)'],
                                                                                      axis=0) * walk_calories_input),0)
     cal_ind = cal_ind[[scen_names[i]]]
-    cal_ind_list.append(cal_ind)
-    cal_ind_concat_interv_2 = pd.concat(cal_ind_list, ignore_index=False, join='outer')
+    cal_ind_list_interv_2.append(cal_ind)
+    cal_ind_concat_interv_2 = pd.concat(cal_ind_list_interv_2, ignore_index=False, join='outer')
     cal_ind_concat_interv_2 = cal_ind_concat_interv_2.groupby(level=0).sum()
 cal_ind_concat_interv_2 = cal_ind_concat_interv_2.stack().reset_index()
 cal_ind_concat_interv_2.columns = ['Persona', 'Scenario', 'Calories']
@@ -1401,32 +1397,31 @@ cal_ind_concat_interv_2['Scenario'] = cal_ind_concat_interv_2['Scenario'].str[:2
 cal_ind_interv = pd.concat([cal_ind_concat, cal_ind_concat_interv_1, cal_ind_concat_interv_2])
 cal_ind_interv = cal_ind_interv.sort_values(by=['Persona','Scenario'])
 
-
-## New emissions with pop size
+# New emissions with pop size
 # Intervention 1
-emis_group_list = []
+emis_group_list_interv_1 = []
 for i in range(no_scen):
-    emis_group = emis_ind_list[i].copy()
+    emis_group = emis_ind_list_interv_1[i].copy()
     emis_group = emis_group[0:no_pers]
     # Divided by 100 for percentage of population, by 1000 for emissions in tons instead of kg
-    emis_group = round((emis_group.multiply(pers_weights, axis=0)) * no_people / 100000)
+    emis_group = (emis_group.multiply(pers_weights, axis=0)) * no_people / 100000
     emis_group = emis_group[[scen_names[i]]]
-    emis_group_list.append(emis_group)
-    emis_group_concat_interv_1 = pd.concat(emis_group_list, ignore_index=False, join='outer')
+    emis_group_list_interv_1.append(emis_group)
+    emis_group_concat_interv_1 = pd.concat(emis_group_list_interv_1, ignore_index=False, join='outer')
     emis_group_concat_interv_1 = emis_group_concat_interv_1.groupby(level=0).sum()
 emis_group_concat_interv_1 = emis_group_concat_interv_1.stack().reset_index()
 emis_group_concat_interv_1.columns = ['Persona', 'Scenario', 'CO2e']
 
 # Intervention 2
-emis_group_list = []
+emis_group_list_interv_2 = []
 for i in range(no_scen):
-    emis_group = emis_ind_list[i].copy()
+    emis_group = emis_ind_list_interv_2[i].copy()
     emis_group = emis_group[0:no_pers]
     # Divided by 100 for percentage of population, by 1000 for emissions in tons instead of kg
-    emis_group = round((emis_group.multiply(pers_weights, axis=0)) * no_people / 100000)
+    emis_group = (emis_group.multiply(pers_weights, axis=0)) * no_people / 100000
     emis_group = emis_group[[scen_names[i]]]
-    emis_group_list.append(emis_group)
-    emis_group_concat_interv_2 = pd.concat(emis_group_list, ignore_index=False, join='outer')
+    emis_group_list_interv_2.append(emis_group)
+    emis_group_concat_interv_2 = pd.concat(emis_group_list_interv_2, ignore_index=False, join='outer')
     emis_group_concat_interv_2 = emis_group_concat_interv_2.groupby(level=0).sum()
 emis_group_concat_interv_2 = emis_group_concat_interv_2.stack().reset_index()
 emis_group_concat_interv_2.columns = ['Persona', 'Scenario', 'CO2e']
@@ -1439,30 +1434,30 @@ emis_group_concat_interv_2['Scenario'] = emis_group_concat_interv_2['Scenario'].
 emis_group_interv = pd.concat([emis_group_concat, emis_group_concat_interv_1, emis_group_concat_interv_2])
 emis_group_interv = emis_group_interv.sort_values(by=['Persona','Scenario'])
 
-## New energy with pop size
+# New energy with pop size
 # Intervention 1
-ener_group_list = []
+ener_group_list_interv_1 = []
 for i in range(no_scen):
-    ener_group = ener_ind_list[i].copy()
+    ener_group = ener_ind_list_interv_1[i].copy()
     ener_group = ener_group[0:no_pers]
     # Divided by 100 for percentage of population, by 1000 for energy in giga joule
     ener_group = round((ener_group.multiply(pers_weights, axis=0)) * no_people / 100000)
     ener_group = ener_group[[scen_names[i]]]
-    ener_group_list.append(ener_group)
-    ener_group_concat_interv_1 = pd.concat(ener_group_list, ignore_index=False, join='outer')
+    ener_group_list_interv_1.append(ener_group)
+    ener_group_concat_interv_1 = pd.concat(ener_group_list_interv_1, ignore_index=False, join='outer')
     ener_group_concat_interv_1 = ener_group_concat_interv_1.groupby(level=0).sum()
 ener_group_concat_interv_1 = ener_group_concat_interv_1.stack().reset_index()
 ener_group_concat_interv_1.columns = ['Persona', 'Scenario', 'Energy']
 # Intervention 2
-ener_group_list = []
+ener_group_list_interv_2 = []
 for i in range(no_scen):
-    ener_group = ener_ind_list[i].copy()
+    ener_group = ener_ind_list_interv_2[i].copy()
     ener_group = ener_group[0:no_pers]
     # Divided by 100 for percentage of population, by 1000 for energy in giga joule
     ener_group = round((ener_group.multiply(pers_weights, axis=0)) * no_people / 100000)
     ener_group = ener_group[[scen_names[i]]]
-    ener_group_list.append(ener_group)
-    ener_group_concat_interv_2 = pd.concat(ener_group_list, ignore_index=False, join='outer')
+    ener_group_list_interv_2.append(ener_group)
+    ener_group_concat_interv_2 = pd.concat(ener_group_list_interv_2, ignore_index=False, join='outer')
     ener_group_concat_interv_2 = ener_group_concat_interv_2.groupby(level=0).sum()
 ener_group_concat_interv_2 = ener_group_concat_interv_2.stack().reset_index()
 ener_group_concat_interv_2.columns = ['Persona', 'Scenario', 'Energy']
@@ -1475,30 +1470,30 @@ ener_group_concat_interv_2['Scenario'] = ener_group_concat_interv_2['Scenario'].
 ener_group_interv = pd.concat([ener_group_concat, ener_group_concat_interv_1, ener_group_concat_interv_2])
 ener_group_interv = ener_group_interv.sort_values(by=['Persona','Scenario'])
 
-## New calories with pop size
+# New calories with pop size
 # Intervention 1
-cal_group_list = []
+cal_group_list_interv_1 = []
 for i in range(no_scen):
-    cal_group = cal_ind_list[i].copy()
+    cal_group = cal_ind_list_interv_1[i].copy()
     cal_group = cal_group[0:no_pers]
     # Divided by 100 for percentage of population and 1000 for pizza
     cal_group = round((cal_group.multiply(pers_weights, axis=0)) * no_people / 100000)
     cal_group = cal_group[[scen_names[i]]]
-    cal_group_list.append(cal_group)
-    cal_group_concat_interv_1 = pd.concat(cal_group_list, ignore_index=False, join='outer')
+    cal_group_list_interv_1.append(cal_group)
+    cal_group_concat_interv_1 = pd.concat(cal_group_list_interv_1, ignore_index=False, join='outer')
     cal_group_concat_interv_1 = cal_group_concat_interv_1.groupby(level=0).sum()
 cal_group_concat_interv_1 = cal_group_concat_interv_1.stack().reset_index()
 cal_group_concat_interv_1.columns = ['Persona', 'Scenario', 'Calories']
 # Intervention 2
-cal_group_list = []
+cal_group_list_interv_2 = []
 for i in range(no_scen):
-    cal_group = cal_ind_list[i].copy()
+    cal_group = cal_ind_list_interv_2[i].copy()
     cal_group = cal_group[0:no_pers]
     # Divided by 100 for percentage of population and 1000 for pizza
     cal_group = round((cal_group.multiply(pers_weights, axis=0)) * no_people / 100000)
     cal_group = cal_group[[scen_names[i]]]
-    cal_group_list.append(cal_group)
-    cal_group_concat_interv_2 = pd.concat(cal_group_list, ignore_index=False, join='outer')
+    cal_ind_list_interv_2.append(cal_group)
+    cal_group_concat_interv_2 = pd.concat(cal_ind_list_interv_2, ignore_index=False, join='outer')
     cal_group_concat_interv_2 = cal_group_concat_interv_2.groupby(level=0).sum()
 cal_group_concat_interv_2 = cal_group_concat_interv_2.stack().reset_index()
 cal_group_concat_interv_2.columns = ['Persona', 'Scenario', 'Calories']
@@ -1511,9 +1506,7 @@ cal_group_concat_interv_2['Scenario'] = cal_group_concat_interv_2['Scenario'].st
 cal_group_interv = pd.concat([cal_group_concat, cal_group_concat_interv_1, cal_group_concat_interv_2])
 cal_group_interv = cal_group_interv.sort_values(by=['Persona','Scenario'])
 
-
-### Graphs
-
+# Graphs
 st.header('Step 10a: Impacts per persona group with interventions')
 st.write('The following charts show for each persona and scenario the emissions, energy demand, and calories burned.'
          f'Each time, the base scenario is compared to the interventions {interv_name_1} and {interv_name_2}.')
@@ -1583,28 +1576,54 @@ chart_cal_group_interv
 
 # Last step, written summary
 st.header('Step 10c: Aggregated impacts considering scenario likelihood with interventions')
+# Emissions aggregation
 emis_aggr = emis_group_concat.groupby('Scenario').sum().copy()
-emis_aggr = round((emis_aggr.multiply(scen_likelihood_list, axis=0)) / 100)
-indic_aggr_interv_1 = emis_aggr.sum()
+emis_aggr = ((emis_aggr.multiply(scen_likelihood_list, axis=0)) / 100).sum()
+# Intervention 1
+emis_aggr_interv_1 = emis_group_concat_interv_1.groupby('Scenario').sum().copy()
+emis_aggr_interv_1 = ((emis_aggr_interv_1.multiply(scen_likelihood_list, axis=0)) / 100).sum()
+emis_aggr = emis_aggr.append(emis_aggr_interv_1)
+# Intervention 2
+emis_aggr_interv_2 = emis_group_concat_interv_2.groupby('Scenario').sum().copy()
+emis_aggr_interv_2 = ((emis_aggr_interv_2.multiply(scen_likelihood_list, axis=0)) / 100).sum()
+emis_aggr = emis_aggr.append(emis_aggr_interv_2)
 
+# Energy aggregation
 ener_aggr = ener_group_concat.groupby('Scenario').sum().copy()
-ener_aggr = round((ener_aggr.multiply(scen_likelihood_list, axis=0)) / 100)
-ener_aggr = ener_aggr.sum()
-indic_aggr_interv_1 = indic_aggr_interv_1.append(ener_aggr, ignore_index=False)
+ener_aggr = ((ener_aggr.multiply(scen_likelihood_list, axis=0)) / 100).sum()
+# Intervention 1
+ener_aggr_interv_1 = ener_group_concat_interv_1.groupby('Scenario').sum().copy()
+ener_aggr_interv_1 = ((ener_aggr_interv_1.multiply(scen_likelihood_list, axis=0)) / 100).sum()
+ener_aggr = ener_aggr.append(ener_aggr_interv_1)
+# Intervention 2
+ener_aggr_interv_2 = ener_group_concat_interv_2.groupby('Scenario').sum().copy()
+ener_aggr_interv_2 = ((ener_aggr_interv_2.multiply(scen_likelihood_list, axis=0)) / 100).sum()
+ener_aggr = ener_aggr.append(ener_aggr_interv_2)
 
+# Calories aggregation
 cal_aggr = cal_group_concat.groupby('Scenario').sum().copy()
-cal_aggr = round((cal_aggr.multiply(scen_likelihood_list, axis=0)) / 100)
-cal_aggr = cal_aggr.sum()
-indic_aggr_interv_1 = indic_aggr_interv_1.append(cal_aggr, ignore_index=False)
+cal_aggr = ((cal_aggr.multiply(scen_likelihood_list, axis=0)) / 100).sum()
+# Intervention 1
+cal_aggr_interv_1 = cal_group_concat_interv_1.groupby('Scenario').sum().copy()
+cal_aggr_interv_1 = ((cal_aggr_interv_1.multiply(scen_likelihood_list, axis=0)) / 100).sum()
+cal_aggr = cal_aggr.append(cal_aggr_interv_1)
+# Intervention 2
+cal_aggr_interv_2 = cal_group_concat_interv_2.groupby('Scenario').sum().copy()
+cal_aggr_interv_2 = ((cal_aggr_interv_2.multiply(scen_likelihood_list, axis=0)) / 100).sum()
+cal_aggr = cal_aggr.append(cal_aggr_interv_2)
 
-st.write('Taking the earlier established probability of each scenario in consideration, we have an anticipated daily'
-         ' footprint of ' + str(indic_aggr[0]) + ' tons CO2 equivalent without intervention and '  + str(indic_aggr_interv_1[0]) + ' with intervention. '
-         'We had previously an energy demand of ' + str(indic_aggr[1]) + ' giga joule per day and '
-         'now ' + str(indic_aggr_interv_1[1]) + '. The commutes helped to burn a total of '+ str(indic_aggr[2]) + ' calories per day previously '
-         'and now burn ' + str(indic_aggr_interv_1[2]) + ' calories per day.')
+st.write('Considering the likelihood of each scenario, we have an anticipated daily'
+         f' footprint of __{round((emis_aggr[0]))} tons CO2e__ without intervention, '
+         f'__{round(emis_aggr[1])} tons CO2e__ with the intervention __"{interv_name_1}"__ and '
+         f'__{round(emis_aggr[2])} tons CO2e__ with the intervention __"{interv_name_2}"__. '
+         f'Without any intervention, we have a daily energy demand of __{round(ener_aggr[0])}__ giga joule per day. '
+         f'With the intervention __"{interv_name_1}"__, the enery demand changes to __{round(ener_aggr[1])}__ giga joule per day '
+         f'and with __"{interv_name_2}"__ to __{round(ener_aggr[2])}__ giga joule per day. '
+         f'Currently, __{round(cal_aggr[0])}__ pizzas (1000 calories) are burned. After the intervention __"{interv_name_1}"__, __{round(cal_aggr[1])}__ '
+         f'are burned while __"{interv_name_2}"__ changes it to __{round(cal_aggr[2])}__.'
+         )
 
-####### Sidebar
-
+# Sidebar
 # Set the title and description
 st.sidebar.title("Info Sidebar")
 st.sidebar.write("You can use this sidebar to show key info during the process. Everything is also included in the "
