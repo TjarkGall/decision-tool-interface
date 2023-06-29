@@ -49,7 +49,7 @@ This project is licensed under the MIT License.
 
 ## Acknowledgments
 
-This project was developed as part of XYZ University's research initiative on sustainable urban mobility. We would like to acknowledge the support and contributions from the research team and funding agencies.
+This project was developed as part of the Anthropolis Chair's (IRT SystemX/CentraleSupélec) research on sustainable urban mobility. We would like to acknowledge the support and contributions of the research team and funding agencies.
 
 ## Contact
 
