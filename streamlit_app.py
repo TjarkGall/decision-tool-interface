@@ -31,7 +31,7 @@ image = Image.open('data/images/Anthropolis_logo_colour.png')
 st.image(image, use_column_width=True)
 
 # Defining Future Scenarios
-st.header('Step 1: Defining Future Scenarios')
+st.header('Step 1: Defining future scenarios')
 
 # Number of scenarios
 st.subheader('Number of scenarios')
@@ -87,31 +87,47 @@ for i in range(no_scen):
 # Scenario characteristics
 st.subheader('Scenario characteristics')
 st.write('Scenarios help to integrate future uncertainties (= unknown developments). They shall be distinct from each '
-         'other. To ensure this, define four uncertainties: Intermodality, Mixed Use, Density, and Public Transport for each '
-         'of the scenarios from low to very high. While these numbers are not taken into consideration in the calculation, '
-         'they shall help to distinguish the scenarios during the following steps.')
-st.write("**Intermodality** refers to the ability to use various modes, e.g., metro, bus, and shared bikes.")
-st.write("**Mixed Use** describes the mix functions, e.g., only universities or a mix with shops, bars, housing.")
-st.write("**Density** refers to the population density, i.e. how many people live and work close to each other.")
-st.write("**Public Transport** refers to the service level, e.g., schedule frequency, network density.")
+         'other. To ensure this, four uncertainties are defined as examples here: Intermodality, Mixed Use, '
+         'Density, and Public Transport. For each of the scenarios, they are ranked between low to very high. '
+         'While these numbers are not taken into consideration in the calculation, they shall help to distinguish '
+         'the scenarios during the following steps.')
 
-scen_chars_prep = [{"IM": "3: high", "MU": "1: low", "DE": "4: very high", "PT": "3: high", },
-                   {"IM": "4: very high", "MU": "4: very high", "DE": "4: very high", "PT": "4: very high", },
-                   {"IM": "2: medium", "MU": "1: low", "DE": "1: low", "PT": "2: medium", },
-                   {"IM": "2: medium", "MU": "4: very high", "DE": "2: medium", "PT": "3: high"},
-                   {"IM": "2: medium", "MU": "2: medium", "DE": "2: medium", "PT": "2: medium", },
-                   {"IM": "2: medium", "MU": "2: medium", "DE": "2: medium", "PT": "2: medium", },
-                   {"IM": "2: medium", "MU": "2: medium", "DE": "2: medium", "PT": "2: medium", },
-                   {"IM": "2: medium", "MU": "2: medium", "DE": "2: medium", "PT": "2: medium", },]
+uncert_names = []
+uncert_desc = []
+
+uncert_names.append(st.text_input('Uncertainty 1 (U1):', value='Intermodality'))
+uncert_desc.append(st.text_area('U1 description (max. 250 characters):',
+                              value='Ability to use various modes, e.g., metro, bus, and shared bikes.', max_chars=250))
+
+uncert_names.append(st.text_input('Uncertainty 2 (U2):', value='Mixed Use'))
+uncert_desc.append(st.text_area('U2 description (max. 250 characters):',
+                              value='Mix of functions, e.g., only universities or a mix with shops, bars, housing.', max_chars=250))
+
+uncert_names.append(st.text_input('Uncertainty 3 (U3):', value='Density'))
+uncert_desc.append(st.text_area('U3 description (max. 250 characters):',
+                              value='Population density, i.e. how many people live and work close to each other.', max_chars=250))
+
+uncert_names.append(st.text_input('Uncertainty 4 (U4):', value='Public Transport'))
+uncert_desc.append(st.text_area('U4 description (max. 250 characters):',
+                              value='Refers to the service level, e.g., schedule frequency, network density.', max_chars=250))
+
+scen_chars_prep = [{"U1": "3: high", "U2": "1: low", "U3": "4: very high", "U4": "3: high", },
+                   {"U1": "4: very high", "U2": "4: very high", "U3": "4: very high", "U4": "4: very high", },
+                   {"U1": "2: medium", "U2": "1: low", "U3": "1: low", "U4": "2: medium", },
+                   {"U1": "2: medium", "U2": "4: very high", "U3": "2: medium", "U4": "3: high"},
+                   {"U1": "2: medium", "U2": "2: medium", "U3": "2: medium", "U4": "2: medium", },
+                   {"U1": "2: medium", "U2": "2: medium", "U3": "2: medium", "U4": "2: medium", },
+                   {"U1": "2: medium", "U2": "2: medium", "U3": "2: medium", "U4": "2: medium", },
+                   {"U1": "2: medium", "U2": "2: medium", "U3": "2: medium", "U4": "2: medium", },]
 scen_chars_prep = scen_chars_prep[0:no_scen]
 
 scen_chars = pd.DataFrame(scen_chars_prep, index=scen_names)
-scen_chars.IM = scen_chars.IM.astype("category")
-scen_chars.MU = scen_chars.MU.astype("category")
-scen_chars.DE = scen_chars.DE.astype("category")
-scen_chars.PT = scen_chars.PT.astype("category")
+scen_chars.U1 = scen_chars.U1.astype("category")
+scen_chars.U2 = scen_chars.U2.astype("category")
+scen_chars.U3 = scen_chars.U3.astype("category")
+scen_chars.U4 = scen_chars.U4.astype("category")
 
-cols = ["IM", "MU", "DE", "PT"]
+cols = ["U1", "U2", "U3", "U4"]
 
 for col in cols:
     categories = list(scen_chars[col].cat.categories)
@@ -119,13 +135,13 @@ for col in cols:
         if cat not in categories:
             scen_chars[col] = scen_chars[col].cat.add_categories(cat)
 
-scen_chars.IM = scen_chars.IM.cat.set_categories(["1: low", "2: medium", "3: high", "4: very high"])
-scen_chars.MU = scen_chars.MU.cat.set_categories(["1: low", "2: medium", "3: high", "4: very high"])
-scen_chars.DE = scen_chars.DE.cat.set_categories(["1: low", "2: medium", "3: high", "4: very high"])
-scen_chars.PT = scen_chars.PT.cat.set_categories(["1: low", "2: medium", "3: high", "4: very high"])
+scen_chars.U1 = scen_chars.U1.cat.set_categories(["1: low", "2: medium", "3: high", "4: very high"])
+scen_chars.U2 = scen_chars.U2.cat.set_categories(["1: low", "2: medium", "3: high", "4: very high"])
+scen_chars.U3 = scen_chars.U3.cat.set_categories(["1: low", "2: medium", "3: high", "4: very high"])
+scen_chars.U4 = scen_chars.U4.cat.set_categories(["1: low", "2: medium", "3: high", "4: very high"])
 
-scen_chars = scen_chars.rename(columns={'IM': 'Intermodality', 'MU': 'Mixed Use',
-                                        'DE': 'Density', 'PT': 'Public Transport'})
+scen_chars = scen_chars.rename(columns={'U1': uncert_names[0], 'U2': uncert_names[1],
+                                        'U3': uncert_names[2], 'U4': uncert_names[3]})
 scen_chars = st.experimental_data_editor(scen_chars)
 
 # Scenario images
@@ -154,9 +170,13 @@ for i in range(no_scen):
     st.write(scen_chars.loc[scen_names[i]])
 
 # Defining Future Personas
-st.header('Step 2: Defining Future Personas')
+st.header('Step 2: Defining future personas')
 st.write('Next, you can choose with how many personas you want to work, how they are called, and how they are described.'
-         ' The descriptions are important as they permit to image their specific needs and preferences.')
+         ' The descriptions are important as they permit to image their specific needs and preferences. The sample '
+         'personas have been developed during a workshop. You can refer to a set of 16 personas developed on the '
+         'basis of the 2019 census, as well as their distributions, by clicking here <a href="https://urban-mobility-futures.notion.site/Personas-aa3b30f47c354220bc025dd7edb207cd?pvs=25">here.</a>',
+         unsafe_allow_html=True)
+
 # Number of personas
 st.subheader('Number of personas')
 no_pers = st.slider('With how many personas do you want to work?', min_value=2, max_value=8, value=4)
@@ -854,7 +874,7 @@ chart_cal_group = alt.Chart(cal_group_concat).mark_bar().encode(
 st.altair_chart(chart_cal_group, use_container_width=False)
 
 # Aggregated impacts considering scenario likelihood
-st.header('Step 8c: Aggregated impacts considering scenario likelihood')
+st.header('Step 8c: Analysis of results')
 
 emis_aggr = emis_group_concat.groupby('Scenario').sum().copy()
 emis_aggr = round((emis_aggr.multiply(scen_likelihood_list, axis=0)) / 100)
@@ -872,11 +892,76 @@ cal_aggr = round((cal_aggr.multiply(scen_likelihood_list, axis=0)) / 100)
 cal_aggr = cal_aggr.sum()
 indic_aggr = indic_aggr.append(cal_aggr, ignore_index=False)
 
+# individual scenario values
+emis_scen_max_name = emis_aggr.sort_values('CO2e', ascending=False).reset_index()['Scenario'].iloc[0]
+emis_scen_max_val = emis_aggr.sort_values('CO2e', ascending=False).reset_index()['CO2e'].iloc[0]
+
+emis_scen_min_name = emis_aggr.sort_values('CO2e', ascending=True).reset_index()['Scenario'].iloc[0]
+emis_scen_min_val = emis_aggr.sort_values('CO2e', ascending=True).reset_index()['CO2e'].iloc[0]
+
+# Individual for personas
+emis_pers_ind_max_name_group = emis_ind_concat.groupby('Persona').mean().sort_values('CO2e', ascending=False).reset_index()['Persona'].iloc[0]
+emis_pers_ind_max_val_group = emis_ind_concat.groupby('Persona').mean().sort_values('CO2e', ascending=False).reset_index()['CO2e'].iloc[0].round(1)
+
+emis_pers_ind_min_name_group = emis_ind_concat.groupby('Persona').mean().sort_values('CO2e').reset_index()['Persona'].iloc[0]
+emis_pers_ind_min_val_group = emis_ind_concat.groupby('Persona').mean().sort_values('CO2e').reset_index()['CO2e'].iloc[0].round(1)
+
+max_emitter_ind_name = emis_ind_concat.sort_values('CO2e', ascending=False).reset_index()['Persona'].iloc[0]
+max_emitter_ind_scen = emis_ind_concat.sort_values('CO2e', ascending=False).reset_index()['Scenario'].iloc[0]
+max_emitter_ind_max_value = emis_ind_concat.sort_values('CO2e', ascending=False).reset_index()['CO2e'].iloc[0].round(1)
+max_emitter_ind_min_value = emis_ind_concat[emis_ind_concat['Persona'] == max_emitter_ind_name].sort_values('CO2e')['CO2e'].iloc[0].round(1)
+max_emitter_ind_scen_min = emis_ind_concat[emis_ind_concat['Persona'] == max_emitter_ind_name].sort_values('CO2e')['Scenario'].iloc[0]
+
+min_emitter_ind_name = emis_ind_concat.sort_values('CO2e').reset_index()['Persona'].iloc[0]
+min_emitter_ind_max_value = emis_ind_concat[emis_ind_concat['Persona'] == min_emitter_ind_name].sort_values('CO2e', ascending=False)['CO2e'].iloc[0].round(2)
+min_emitter_ind_min_value = emis_ind_concat[emis_ind_concat['Persona'] == min_emitter_ind_name].sort_values('CO2e')['CO2e'].iloc[0].round(2)
+
+# Aggregated by personas
+emis_pers_aggr_max_name_group = emis_group_concat.groupby('Persona').mean().sort_values('CO2e', ascending=False).reset_index()['Persona'].iloc[0]
+emis_pers_aggr_max_val_group = emis_group_concat.groupby('Persona').mean().sort_values('CO2e', ascending=False).reset_index()['CO2e'].iloc[0].round(1)
+
+emis_pers_aggr_min_name_group = emis_group_concat.groupby('Persona').mean().sort_values('CO2e').reset_index()['Persona'].iloc[0]
+emis_pers_aggr_min_val_group = emis_group_concat.groupby('Persona').mean().sort_values('CO2e').reset_index()['CO2e'].iloc[0].round(1)
+
+max_emitter_aggr_name = emis_group_concat.sort_values('CO2e', ascending=False).reset_index()['Persona'].iloc[0]
+max_emitter_aggr_scen = emis_group_concat.sort_values('CO2e', ascending=False).reset_index()['Scenario'].iloc[0]
+max_emitter_aggr_max_value = emis_group_concat.sort_values('CO2e', ascending=False).reset_index()['CO2e'].iloc[0].round(1)
+max_emitter_aggr_min_value = emis_group_concat[emis_group_concat['Persona'] == max_emitter_aggr_name].sort_values('CO2e')['CO2e'].iloc[0].round(1)
+max_emitter_aggr_scen_min = emis_group_concat[emis_group_concat['Persona'] == max_emitter_aggr_name].sort_values('CO2e')['Scenario'].iloc[0]
+
+min_emitter_aggr_name = emis_group_concat.sort_values('CO2e').reset_index()['Persona'].iloc[0]
+min_emitter_aggr_max_value = emis_group_concat[emis_group_concat['Persona'] == min_emitter_aggr_name].sort_values('CO2e', ascending=False)['CO2e'].iloc[0].round(2)
+min_emitter_aggr_min_value = emis_group_concat[emis_group_concat['Persona'] == min_emitter_aggr_name].sort_values('CO2e')['CO2e'].iloc[0].round(2)
+
 st.write('Building on the earlier established likelihood of each scenario, we can anticipate a daily '
          f'footprint of __{round(indic_aggr[0])} tons CO2 equivalent__. This makes it about __{round(indic_aggr[0] * 0.365)} '
          f'kilotons__ per year. Further, we assume an energy demand of __{round(indic_aggr[1])} gigajoules per day__ and '
          f'about __{round(indic_aggr[1] * 0.365)} terajoules per year__. On the positive side, the commutes help to burn '
-         f'a total of __{round(indic_aggr[2])} pizzas (=1000 calories) per day__ or __{round(indic_aggr[1] * 365)}__ per year.')
+         f'a total of __{round(indic_aggr[2])} pizzas (=1000 calories) per day__ or __{round(indic_aggr[1] * 365)} pizzas__ per year.')
+
+st.write('More interesting insights can be generated when we look at the differences between the scenarios. '
+         f'The highest emitting scenario is __{emis_scen_max_name}__ with __{int(emis_scen_max_val)} tons CO2e per day__. '
+         f'This is __{int(emis_scen_max_val-emis_scen_min_val)} tons CO2e__ more than the most sustainable scenario '
+         f'__{emis_scen_min_name}__ which only emits __{int(emis_scen_min_val)} tons CO2e per day__.')
+
+st.write(f'The highest emitter (average across scenarios) is __{emis_pers_ind_max_name_group}__ with '
+         f'__{emis_pers_ind_max_val_group} kg CO2e per day__ compared to __{emis_pers_ind_min_name_group}__ who only '
+         f'emits __{emis_pers_ind_min_val_group} kg CO2e per day__. When zooming in on the scenarios, the differences '
+         f'become even stronger. For example, __{max_emitter_ind_name}__ has the highest overall emissions for the '
+         f'scenario __{max_emitter_ind_scen}__ with __{max_emitter_ind_max_value} kg CO2e__, '
+         f'__{(max_emitter_ind_max_value/max_emitter_ind_min_value).round(1)} times__ more than the same persona for scenario '
+         f'__{max_emitter_ind_scen_min}__. On the other extreme, __{min_emitter_ind_name}__ emits only between '
+         f' __{min_emitter_ind_min_value} and {min_emitter_ind_max_value} kg CO2e per day__.')
+
+st.write(f'Finally, we can look at the emissions taking into consideration the population size and persona occurrence. '
+         f'The highest emitter in this case (average across scenarios) is all __{emis_pers_aggr_max_name_group}s__ with '
+         f'__{emis_pers_aggr_max_val_group} tons CO2e per day__ compared to all __{emis_pers_aggr_min_name_group}s__ who only '
+         f'emit __{emis_pers_aggr_min_val_group} tons CO2e per day__. When zooming in on the scenarios, the differences '
+         f'become even stronger. For example, all__{max_emitter_aggr_name}s__ have the highest overall emissions for the '
+         f'scenario __{max_emitter_aggr_scen}__ with __{max_emitter_aggr_max_value} tons CO2e__, '
+         f'__{(max_emitter_aggr_max_value/max_emitter_aggr_min_value).round(1)} times__ more than the same persona for scenario '
+         f'__{max_emitter_aggr_scen_min}__. On the other extreme, all __{min_emitter_aggr_name}s__ emit only between '
+         f' __{min_emitter_aggr_min_value} and {min_emitter_aggr_max_value} tons CO2e per day__.')
 
 # Defining potential interventions
 st.header('Step 9a: Defining potential interventions')
@@ -1575,7 +1660,7 @@ chart_cal_group_interv = alt.Chart(cal_group_interv).mark_bar().encode(
 chart_cal_group_interv
 
 # Last step, written summary
-st.header('Step 10c: Aggregated impacts considering scenario likelihood with interventions')
+st.header('Step 10c: Analysis of results with interventions')
 # Emissions aggregation
 emis_aggr = emis_group_concat.groupby('Scenario').sum().copy()
 emis_aggr = ((emis_aggr.multiply(scen_likelihood_list, axis=0)) / 100).sum()
@@ -1623,6 +1708,11 @@ st.write('Considering the likelihood of each scenario, we have an anticipated da
          f'are burned while __"{interv_name_2}"__ changes it to __{round(cal_aggr[2])}__.'
          )
 
+st.write('Similar as before, we can zoom in on the detailed differences and impacts. This allows us to say, for example, '
+         f'which intervention has the highest impact for which scenario and by how much it can reduce the emissions. '
+         f'Lastly, we can use the graphs to analyse which personas are affected how to see if the interventions '
+         f'serve those which are targeted.')
+
 # Sidebar
 # Set the title and description
 st.sidebar.title("Info Sidebar")
@@ -1640,8 +1730,8 @@ if selected_option == "Process & Glossary":
    with st.sidebar:
        st.sidebar.markdown('''
        # Process steps
-       - [Step 1: Defining Future Scenarios](#step-1-defining-future-scenarios)
-       - [Step 2: Defining Future Personas](#step-2-defining-future-personas)
+       - [Step 1: Defining future scenarios](#step-1-defining-future-scenarios)
+       - [Step 2: Defining future personas](#step-2-defining-future-personas)
        - [Step 3: Set likelihood of scenarios](#step-3-set-likelihood-of-scenarios)
        - [Step 4: Define population size](#step-4-define-population-size)
        - [Step 5: Set persona weights](#step-5-set-persona-weights)
@@ -1649,12 +1739,12 @@ if selected_option == "Process & Glossary":
        - [Step 7: Set values for impact assessment](#step-7-set-values-for-impact-assessment)
        - [Step 8a: Impacts per persona group](#step-8a-impacts-per-persona-group)
        - [Step 8b: Impacts considering population size and persona distribution](#step-8b-impacts-considering-population-size-and-persona-distribution)
-       - [Step 8c: Aggregated impacts considering scenario likelihood](#step-8c-aggregated-impacts-considering-scenario-likelihood)
+       - [Step 8c: Analysis of results](#step-8c-analysis-of-results)
        - [Step 9a: Defining potential interventions](#step-9a-defining-potential-interventions)
        - [Step 9b: Estimating impact of interventions](#step-9b-estimating-impact-of-interventions)
        - [Step 10a: Impacts per persona group with interventions](#step-10a-impacts-per-persona-group-with-interventions)
        - [Step 10b: Impacts considering population size and persona distribution with interventions](#step-10b-impacts-considering-population-size-and-persona-distribution-with-interventions)
-       - [Step 10c: Aggregated impacts considering scenario likelihood with interventions](#step-10c-aggregated-impacts-considering-scenario-likelihood-with-interventions)
+       - [Step 10c: Analysis of results with interventions](#step-10c-analysis-of-results-with-interventions)
        ''', unsafe_allow_html=True)
        st.header("Glossary")
        st.write("Scenarios are distinct alternative futures that help considering uncertain future developments.")
