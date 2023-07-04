@@ -987,10 +987,10 @@ st.text_area(f'Intervention 2 description (max. 250 characters):', value=interv_
 st.header('Step 9b: Estimating impact of interventions')
 st.write('Set the assumed impact the two interventions might have across scenarios and personas. The values go from -2 to +2.'
          ' -2 means that after the intervention, a certain mode is much less likely. 0 means nothing changes. +2'
-         ' means that the likelihood to use a certain mode increases strongly.')
+         ' means that the likelihood to use a certain mode increases strongly. The acronyms stand for: MoD: Mobility '
+         'on Demand, MM: Micromobility, PT: Public Transport.')
 
-# Input collection for intervention 1
-st.subheader(f'Impact of intervention 1: {interv_name_1}')
+# Input collection for intervention 1 and 2
 interv_1_impact = {
         0:{
         'MoD': ['+1: Slight increase','+2: Strong increase','+1: Slight increase','0: No change','0: No change','0: No change','0: No change','0: No change'],
@@ -1113,35 +1113,7 @@ interv_1_impact = {
         'MM-Walk': ['0: No change','0: No change','0: No change','0: No change','0: No change','0: No change','0: No change','0: No change'],
         },
         }
-interv_1_impact_list = []
-for i in range(no_scen):
-    # Create editabe dataframe for inputs on emissions and energy demand per passenger kilometer
-    interv_1_impact_temp = interv_1_impact[i]
-    interv_1_impact_temp = pd.DataFrame(interv_1_impact_temp)
-    interv_1_impact_temp = interv_1_impact_temp[:no_pers]
-    interv_1_impact_temp.set_index(pd.Index(pers_name), inplace=True)
-    interv_1_impact_temp = interv_1_impact_temp.apply(lambda col: pd.Categorical(col, categories=['-2: Strong decrease', '-1: Slight decrease', '0: No change', '+1: Slight increase', '+2: Strong increase'], ordered=True))
-    st.write('Define the estimated impact for scenario ' + scen_names[i])
-    interv_1_impact_temp = st.experimental_data_editor(interv_1_impact_temp, key=f'interv_1_impact{i + 1}')
-    interv_1_impact_list.append(interv_1_impact_temp)
-interv_1_impact_result_list = []
-for i in range(no_scen):
-    # Add corresponding values from both dataframes
-    df1 = mode_pref_list[i]
-    df1 = df1.apply(lambda x: x.str[0])
-    df1 = df1.astype(int)
-    df2 = interv_1_impact_list[i]
-    df2 = df2.apply(lambda x: x.str.split(':', 1).str[0])
-    df2 = df2.astype(int)
-    result = pd.DataFrame(index=df1.index, columns=df2.columns)
-    for p in range(no_pers):
-        for j in range(13):
-            value = df1.iloc[p, j] + df2.iloc[p, j]
-            result.iloc[p, j] = max(min(value, 4), 0)
-    interv_1_impact_result_list.append(result)
 
-# Input collection for intervention 2
-st.subheader(f'Impact of intervention 2: {interv_name_2}')
 interv_2_impact = {
         0:{
         'MoD': ['0: No change','0: No change','0: No change','0: No change','0: No change','0: No change','0: No change','0: No change'],
@@ -1264,34 +1236,104 @@ interv_2_impact = {
         'MM-Walk': ['0: No change','0: No change','0: No change','0: No change','0: No change','0: No change','0: No change','0: No change'],
         },
         }
+
+# Set df to be used below
+interv_1_impact_list = []
+interv_1_impact_result_list = []
 interv_2_impact_list = []
-
-for i in range(no_scen):
-    # Create editabe dataframe for inputs on emissions and energy demand per passenger kilometer
-    interv_2_impact_temp = interv_2_impact[i]
-    interv_2_impact_temp = pd.DataFrame(interv_2_impact_temp)
-    interv_2_impact_temp = interv_2_impact_temp[:no_pers]
-    interv_2_impact_temp.set_index(pd.Index(pers_name), inplace=True)
-    interv_2_impact_temp = interv_2_impact_temp.apply(lambda col: pd.Categorical(col, categories=['-2: Strong decrease', '-1: Slight decrease', '0: No change', '+1: Slight increase', '+2: Strong increase'], ordered=True))
-    st.write('Define the estimated impact for scenario ' + scen_names[i])
-    interv_2_impact_temp = st.experimental_data_editor(interv_2_impact_temp, key=f'interv_2_impact{i + 1}')
-    interv_2_impact_list.append(interv_2_impact_temp)
-
 interv_2_impact_result_list = []
-for i in range(no_scen):
-    # Add corresponding values from both dataframes
-    df1 = mode_pref_list[i]
-    df1 = df1.apply(lambda x: x.str[0])
-    df1 = df1.astype(int)
-    df2 = interv_2_impact_list[i]
-    df2 = df2.apply(lambda x: x.str.split(':', 1).str[0])
-    df2 = df2.astype(int)
-    result = pd.DataFrame(index=df1.index, columns=df2.columns)
-    for p in range(no_pers):
-        for j in range(13):
-            value = df1.iloc[p, j] + df2.iloc[p, j]
-            result.iloc[p, j] = max(min(value, 4), 0)
-    interv_2_impact_result_list.append(result)
+
+#### START WORKING AREA
+
+# st.write('Two methods are available to evaluate the impact of interventions across scenarios and personas. The checkbox '
+#          'below allows you to switch on the simplified mode.')
+# # Create the button
+button_state = False
+# button_state = st.checkbox('Simplified method')
+#
+
+if button_state == False:
+    st.subheader(f'Impact of intervention 1: {interv_name_1}')
+    for i in range(no_scen):
+        # Create editabe dataframe for inputs on emissions and energy demand per passenger kilometer
+        interv_1_impact_temp = interv_1_impact[i]
+        interv_1_impact_temp = pd.DataFrame(interv_1_impact_temp)
+        interv_1_impact_temp = interv_1_impact_temp[:no_pers]
+        interv_1_impact_temp.set_index(pd.Index(pers_name), inplace=True)
+        interv_1_impact_temp = interv_1_impact_temp.apply(lambda col: pd.Categorical(col, categories=['-2: Strong decrease', '-1: Slight decrease', '0: No change', '+1: Slight increase', '+2: Strong increase'], ordered=True))
+        st.write('Define the estimated impact for scenario ' + scen_names[i])
+        interv_1_impact_temp = st.experimental_data_editor(interv_1_impact_temp, key=f'interv_1_impact{i + 1}')
+        interv_1_impact_list.append(interv_1_impact_temp)
+
+    # Editable df for intervention 1
+    for i in range(no_scen):
+        # Add corresponding values from both dataframes
+        df1 = mode_pref_list[i]
+        df1 = df1.apply(lambda x: x.str[0])
+        df1 = df1.astype(int)
+        df2 = interv_1_impact_list[i]
+        df2 = df2.apply(lambda x: x.str.split(':', 1).str[0])
+        df2 = df2.astype(int)
+        result = pd.DataFrame(index=df1.index, columns=df2.columns)
+        for p in range(no_pers):
+            for j in range(13):
+                value = df1.iloc[p, j] + df2.iloc[p, j]
+                result.iloc[p, j] = max(min(value, 4), 0)
+        interv_1_impact_result_list.append(result)
+
+    st.subheader(f'Impact of intervention 2: {interv_name_2}')
+
+    # Editable df for intervention 2
+    for i in range(no_scen):
+        # Create editabe dataframe for inputs on emissions and energy demand per passenger kilometer
+        interv_2_impact_temp = interv_2_impact[i]
+        interv_2_impact_temp = pd.DataFrame(interv_2_impact_temp)
+        interv_2_impact_temp = interv_2_impact_temp[:no_pers]
+        interv_2_impact_temp.set_index(pd.Index(pers_name), inplace=True)
+        interv_2_impact_temp = interv_2_impact_temp.apply(lambda col: pd.Categorical(col, categories=['-2: Strong decrease', '-1: Slight decrease', '0: No change', '+1: Slight increase', '+2: Strong increase'], ordered=True))
+        st.write('Define the estimated impact for scenario ' + scen_names[i])
+        interv_2_impact_temp = st.experimental_data_editor(interv_2_impact_temp, key=f'interv_2_impact{i + 1}')
+        interv_2_impact_list.append(interv_2_impact_temp)
+
+    for i in range(no_scen):
+        # Add corresponding values from both dataframes
+        df1 = mode_pref_list[i]
+        df1 = df1.apply(lambda x: x.str[0])
+        df1 = df1.astype(int)
+        df2 = interv_2_impact_list[i]
+        df2 = df2.apply(lambda x: x.str.split(':', 1).str[0])
+        df2 = df2.astype(int)
+        result = pd.DataFrame(index=df1.index, columns=df2.columns)
+        for p in range(no_pers):
+            for j in range(13):
+                value = df1.iloc[p, j] + df2.iloc[p, j]
+                result.iloc[p, j] = max(min(value, 4), 0)
+        interv_2_impact_result_list.append(result)
+
+else:
+    st.write("<span style='color:red'>Not finalised yet. Please change back to the extended one.</span>", unsafe_allow_html=True)
+    st.subheader(f'Impact of intervention 1: {interv_name_1}')
+    # Create an empty DataFrame to store the results
+    results_dict = {}
+    for i in range(no_scen):
+        st.subheader(scen_names[i])
+        for p in range(no_pers):
+            st.write(f"__Estimate the impact of {interv_name_1} on {pers_name[p]}__")
+            # Create a slider with range -2 to 2 and default value 0
+            slider_value = st.slider(f"Choose between more individual car use and micromobility on the left (-2) and "
+                                     f"more active modes and public transport on the right (+2)",
+                                     -2, 2, 0, key=f"{i}-{p}")
+
+            # Store the result in the dictionary
+            results_dict[f"({i}, {p})"] = slider_value
+
+    # Display the results
+    st.write(results_dict)
+    st.write(mode_pref_list)
+    st.write(interv_1_impact_result_list)
+
+##### END WORKING AREA
+
 
 # Preparation for charts
 scen_acr = ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8']
